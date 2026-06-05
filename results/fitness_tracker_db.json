@@ -1,0 +1,206 @@
+{
+  "user_info": {
+    "height_cm": 175,
+    "target_weight_kg": 70
+  },
+  "daily_logs": {
+    "2026-06-05": {
+      "weight_kg": 78.5,
+      "water_ml": 500,
+      "notes": ""
+    },
+    "2026-06-06": {
+      "weight_kg": null,
+      "water_ml": 0,
+      "notes": ""
+    },
+    "2026-06-04": {
+      "weight_kg": 79.25,
+      "water_ml": 0,
+      "notes": ""
+    },
+    "2026-05-27": {
+      "weight_kg": 79.5,
+      "water_ml": 0,
+      "notes": ""
+    },
+    "2026-01-07": {
+      "weight_kg": 85.3,
+      "water_ml": 0,
+      "notes": ""
+    },
+    "2026-01-08": {
+      "weight_kg": 84.8,
+      "water_ml": 0,
+      "notes": ""
+    },
+    "2026-06-08": {
+      "weight_kg": null,
+      "water_ml": 0,
+      "notes": ""
+    }
+  },
+  "workout_logs": {
+    "2026-06-05": {
+      "workout_type": "Friday Max-Out Test",
+      "completed_circuits": 0,
+      "exercises": [
+        {
+          "name": "Standard Push-up",
+          "type": "reps",
+          "target": "3 sets x Max reps",
+          "completed": true,
+          "rpe": 4,
+          "comment": "az első 4-5nél ropogott a vállam utána már tökéletes volt, 10-eket csináltam, nem fájt a vállam de elfáradtam."
+        },
+        {
+          "name": "Air Squat",
+          "type": "reps",
+          "target": "3 sets x 25 reps",
+          "completed": true,
+          "rpe": 1,
+          "comment": "bírtam volna sokkal sokkal többet de nem meglepő hisz félmarathon futó vagyok"
+        },
+        {
+          "name": "Plank to Failure",
+          "type": "time",
+          "target": "3 sets x Max time",
+          "completed": true,
+          "rpe": 5,
+          "comment": "1 perceket csináltam, nehéz volt nagyon"
+        },
+        {
+          "name": "Standard Sit-up",
+          "type": "reps",
+          "target": "3 sets x 20 reps",
+          "completed": true,
+          "rpe": 3,
+          "comment": "inkább hasprést csináltam mint rendes felülést, de jól ment, még bírtam volna."
+        }
+      ],
+      "extra_cardio": {
+        "distance_km": null,
+        "duration_minutes": null,
+        "notes": ""
+      }
+    }
+  },
+  "weekly_programs": {
+    "2026-W23": {
+      "week_id": "2026-W23",
+      "program": {
+        "1": {
+          "name": "Upper Body & Core A",
+          "circuits": 4,
+          "exercises": [
+            {
+              "name": "Standard Push-up",
+              "target": "4 kör x 8 ismétlés"
+            },
+            {
+              "name": "Standard Plank",
+              "target": "4 kör x 45 másodperc"
+            },
+            {
+              "name": "Prone Cobra",
+              "target": "4 kör x 15 ismétlés"
+            },
+            {
+              "name": "Standard Sit-up",
+              "target": "4 kör x 15 ismétlés"
+            }
+          ]
+        },
+        "2": {
+          "name": "Legs & Cardio Foundation",
+          "circuits": 4,
+          "exercises": [
+            {
+              "name": "Air Squat",
+              "target": "4 kör x 20 ismétlés"
+            },
+            {
+              "name": "Walking Lunge",
+              "target": "4 kör x 10-10 lépés"
+            },
+            {
+              "name": "Standing Calf Raise",
+              "target": "4 kör x 25 ismétlés"
+            },
+            {
+              "name": "Plank Hip Dips",
+              "target": "4 kör x 12-12 billentés"
+            }
+          ]
+        },
+        "3": {
+          "name": "Upper Body & Core B",
+          "circuits": 4,
+          "exercises": [
+            {
+              "name": "Incline Push-up or Dolphin Plank",
+              "target": "4 kör x 8 fekvő vagy 12 dolphin"
+            },
+            {
+              "name": "Lying Leg Raise",
+              "target": "4 kör x 12 emelés"
+            },
+            {
+              "name": "Superman Hold",
+              "target": "4 kör x 15 ismétlés (2mp tartás)"
+            },
+            {
+              "name": "High Knees",
+              "target": "4 kör x 45 másodperc pörgősen"
+            }
+          ]
+        },
+        "4": {
+          "name": "Core & Lower Body Burn",
+          "circuits": 4,
+          "exercises": [
+            {
+              "name": "Reverse Lunge",
+              "target": "4 kör x 10-10 kitörés hátra"
+            },
+            {
+              "name": "Standard Plank",
+              "target": "4 kör x 45 másodperc"
+            },
+            {
+              "name": "Russian Twist",
+              "target": "4 kör x 15-15 csavarás"
+            },
+            {
+              "name": "Squat to Cross-Body Knee Drive",
+              "target": "4 kör x 16 guggolásból térdhúzás"
+            }
+          ]
+        },
+        "5": {
+          "name": "Friday Max-Out Test",
+          "circuits": 3,
+          "exercises": [
+            {
+              "name": "Standard Push-up",
+              "target": "3 kör x Maximum szabályos ismétlés"
+            },
+            {
+              "name": "Air Squat",
+              "target": "3 kör x 25 guggolás"
+            },
+            {
+              "name": "Plank to Failure",
+              "target": "3 kör x Maximum idő (bukásig)"
+            },
+            {
+              "name": "Standard Sit-up",
+              "target": "3 kör x 20 felülés"
+            }
+          ]
+        }
+      },
+      "imported_at": "2026-06-05T13:37:14.203Z"
+    }
+  }
+}

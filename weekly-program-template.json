@@ -1,0 +1,41 @@
+{
+  "week_id": "YYYY-WXX",
+  "week_label": "Hét leírása (opcionális)",
+  "program": {
+    "1": {
+      "name": "Hétfői edzés neve",
+      "circuits": 4,
+      "exercises": [
+        { "name": "Gyakorlat neve", "target": "4 kör x 8 ismétlés" }
+      ]
+    },
+    "2": {
+      "name": "Keddi edzés neve",
+      "circuits": 4,
+      "exercises": [
+        { "name": "Gyakorlat neve", "target": "4 kör x 20 ismétlés" }
+      ]
+    },
+    "3": {
+      "name": "Szerdai edzés neve",
+      "circuits": 4,
+      "exercises": [
+        { "name": "Gyakorlat neve", "target": "4 kör x 12 ismétlés" }
+      ]
+    },
+    "4": {
+      "name": "Csütörtöki edzés neve",
+      "circuits": 4,
+      "exercises": [
+        { "name": "Gyakorlat neve", "target": "4 kör x 15 ismétlés" }
+      ]
+    },
+    "5": {
+      "name": "Pénteki edzés neve",
+      "circuits": 3,
+      "exercises": [
+        { "name": "Gyakorlat neve", "target": "3 kör x Max ismétlés" }
+      ]
+    }
+  }
+}

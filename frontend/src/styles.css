@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --primary: 16 185 129;        /* férfi: emerald */
+    --primary-strong: 5 150 105;
+}
+
+body.theme-female {
+    --primary: 244 63 94;         /* női: rose */
+    --primary-strong: 225 29 72;
+}
+
+@layer base {
+    html { -webkit-tap-highlight-color: transparent; }
+    body {
+        @apply bg-slate-900 text-slate-200 antialiased;
+        min-height: 100dvh;
+    }
+    input[type='number']::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type='number'] { -moz-appearance: textfield; }
+}
+
+@layer components {
+    .card { @apply bg-slate-800 border border-slate-700 rounded-2xl p-4 md:p-5; }
+    .card-title { @apply text-sm font-semibold uppercase tracking-wide text-slate-400 mb-3; }
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium transition
+               active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none select-none;
+    }
+    .btn-primary { @apply btn bg-primary text-slate-900 hover:bg-primary-strong; }
+    .btn-secondary { @apply btn bg-slate-700 text-slate-100 hover:bg-slate-600; }
+    .btn-ghost { @apply btn bg-transparent text-slate-300 hover:bg-slate-700/60; }
+    .btn-danger { @apply btn bg-red-900/70 text-red-100 hover:bg-red-800; }
+    .btn-sm { @apply px-3 py-1.5 text-sm rounded-lg; }
+    .input {
+        @apply w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2.5 text-slate-100
+               placeholder:text-slate-500 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20;
+    }
+    .label { @apply block text-xs font-medium text-slate-400 mb-1; }
+    .chip {
+        @apply inline-flex items-center gap-1 rounded-full border border-slate-600 px-3 py-1.5 text-sm
+               text-slate-300 transition select-none hover:border-slate-400;
+    }
+    .chip-active { @apply border-primary bg-primary/15 text-primary; }
+    .chip-easy.chip-active { @apply border-sky-400 bg-sky-400/15 text-sky-300; }
+    .chip-hard.chip-active { @apply border-amber-400 bg-amber-400/15 text-amber-300; }
+    .chip-failed.chip-active { @apply border-red-400 bg-red-400/15 text-red-300; }
+    .badge { @apply inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium; }
+    .progress { @apply h-2 rounded-full bg-slate-700 overflow-hidden; }
+    .progress > div { @apply h-full bg-primary transition-all; }
+    .set-btn {
+        @apply w-10 h-10 shrink-0 rounded-xl border-2 border-slate-600 flex items-center justify-center
+               text-slate-500 font-bold transition;
+    }
+    .set-btn.done { @apply border-primary bg-primary text-slate-900; }
+    .nav-item { @apply flex flex-col md:flex-row items-center gap-0.5 md:gap-3 rounded-xl px-2 md:px-3 py-1.5 md:py-2.5 text-slate-400 transition; }
+    .nav-item.active { @apply text-primary md:bg-slate-800; }
+}
+
+#toast-container {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(5.5rem + env(safe-area-inset-bottom)); z-index: 60;
+    display: flex; flex-direction: column; gap: 0.5rem; width: min(92vw, 380px); pointer-events: none;
+}
+@media (min-width: 768px) { #toast-container { bottom: 1.5rem; } }
+.toast {
+    pointer-events: auto; background: #1e293b; border: 1px solid #334155; border-left: 4px solid rgb(var(--primary));
+    color: #e2e8f0; padding: 0.75rem 1rem; border-radius: 0.75rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.5);
+    white-space: pre-line; font-size: 0.875rem; animation: toast-in 0.2s ease-out; transition: opacity 0.3s, transform 0.3s;
+}
+.toast-error { border-left-color: #f87171; }
+.toast-warn { border-left-color: #fbbf24; }
+.toast-hide { opacity: 0; transform: translateY(8px); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.sync-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; display: inline-block; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }

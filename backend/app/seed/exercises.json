@@ -1,0 +1,310 @@
+{
+  "_comment": "A gyakorlat-katalógus egyetlen forrása. Induláskor a backend ebből frissíti az adatbázist. Izomszorzó: 1.0 = fő mozgató, 0.3-0.6 = segítő/stabilizáló. 'aliases' = a heti tervekben előforduló pontos nevek. 'chain' + 'level' = progressziós lánc (nagyobb szint = nehezebb).",
+  "muscles": [
+    { "code": "chest",       "name_hu": "Mellizom",                    "region": "upper" },
+    { "code": "front_delt",  "name_hu": "Elülső váll",                 "region": "upper" },
+    { "code": "side_delt",   "name_hu": "Oldalsó váll",                "region": "upper" },
+    { "code": "rear_delt",   "name_hu": "Hátsó váll",                  "region": "upper" },
+    { "code": "triceps",     "name_hu": "Tricepsz",                    "region": "upper" },
+    { "code": "biceps",      "name_hu": "Bicepsz",                     "region": "upper" },
+    { "code": "forearms",    "name_hu": "Alkar",                       "region": "upper" },
+    { "code": "lats",        "name_hu": "Széles hátizom",              "region": "upper" },
+    { "code": "upper_back",  "name_hu": "Felső hát (trapéz, rombusz)", "region": "upper" },
+    { "code": "lower_back",  "name_hu": "Hátfeszítő (alsó hát)",       "region": "core" },
+    { "code": "abs",         "name_hu": "Egyenes hasizom",             "region": "core" },
+    { "code": "obliques",    "name_hu": "Ferde hasizom",               "region": "core" },
+    { "code": "hip_flexors", "name_hu": "Csípőhajlítók",               "region": "lower" },
+    { "code": "glutes",      "name_hu": "Nagy farizom",                "region": "lower" },
+    { "code": "glute_med",   "name_hu": "Középső farizom (csípőtávolító)", "region": "lower" },
+    { "code": "quads",       "name_hu": "Négyfejű combizom",           "region": "lower" },
+    { "code": "hamstrings",  "name_hu": "Combhajlító",                 "region": "lower" },
+    { "code": "adductors",   "name_hu": "Combközelítő",                "region": "lower" },
+    { "code": "calves",      "name_hu": "Vádli",                       "region": "lower" }
+  ],
+  "exercises": [
+    {
+      "id": "incline_push_up", "name_hu": "Döntött fekvőtámasz", "name_en": "Incline Push-up",
+      "equipment": "bodyweight", "measure": "reps", "chain": "push", "level": 1,
+      "muscles": { "chest": 1.0, "triceps": 0.6, "front_delt": 0.5, "abs": 0.2 },
+      "aliases": ["Incline Push-up", "Incline Push-up or Dolphin Plank"],
+      "image": "incline-push-up.png",
+      "description": "Könnyített fekvőtámasz emelt felületen (kanapé széle vagy asztal). Kiváló vállkímélő verzió."
+    },
+    {
+      "id": "push_up", "name_hu": "Fekvőtámasz", "name_en": "Standard Push-up",
+      "equipment": "bodyweight", "measure": "reps", "chain": "push", "level": 2,
+      "muscles": { "chest": 1.0, "triceps": 0.6, "front_delt": 0.5, "abs": 0.2 },
+      "aliases": ["Standard Push-up", "Push-up"],
+      "image": "push-up.png",
+      "description": "Hagyományos fekvőtámasz. Tartsd a tested egyenes vonalban, a könyökök kb. 45 fokos szöget zárjanak be a törzseddel."
+    },
+    {
+      "id": "deficit_push_up_stand", "name_hu": "Állványos mély fekvőtámasz", "name_en": "Deficit Push-up (Parallettes)",
+      "equipment": "stand", "measure": "reps", "chain": "push", "level": 3,
+      "muscles": { "chest": 1.0, "triceps": 0.6, "front_delt": 0.5, "abs": 0.2 },
+      "aliases": ["Állványos mély fekvőtámasz"],
+      "image": "incline-push-up.png",
+      "description": "Fekvőtámasz állványon végezve. Semleges csuklópozíciót biztosít, a mélyebb mozgástartomány miatt maximálisan nyújtja a mellizmot."
+    },
+    {
+      "id": "slow_negative_push_up", "name_hu": "Lassú negatív fekvőtámasz", "name_en": "Slow Eccentric Push-up",
+      "equipment": "bodyweight", "measure": "reps", "chain": "push", "level": 3,
+      "muscles": { "chest": 1.0, "triceps": 0.6, "front_delt": 0.5, "abs": 0.3 },
+      "aliases": ["Lassú negatív fekvőtámasz", "Állványos lassú negatív fekvőtámasz"],
+      "description": "3 másodperc alatt engedd le magad, lent 1 mp megtartás, majd nyomd fel. Az excentrikus szakasz építi az erőt."
+    },
+    {
+      "id": "hand_release_push_up", "name_hu": "Hand-release fekvőtámasz", "name_en": "Hand-Release Push-up",
+      "equipment": "bodyweight", "measure": "reps", "chain": "push", "level": 4,
+      "muscles": { "chest": 1.0, "triceps": 0.6, "front_delt": 0.5, "rear_delt": 0.2, "upper_back": 0.2, "abs": 0.3 },
+      "aliases": ["Hand-Release Push-up"],
+      "description": "Mellkas a földön, kezek egy pillanatra fel, majd holtpontról robbanékonyan kinyomod magad. Nincs rugózás a mozgás alján."
+    },
+    {
+      "id": "plyo_push_up", "name_hu": "Robbanékony fekvőtámasz", "name_en": "Plyometric Push-up",
+      "equipment": "bodyweight", "measure": "reps", "chain": "push", "level": 5,
+      "muscles": { "chest": 1.0, "triceps": 0.7, "front_delt": 0.5, "abs": 0.3 },
+      "aliases": ["Robbanékony (Plyo) Fekvőtámasz", "Robbanékony Fekvőtámasz"],
+      "description": "Olyan erővel nyomd el magad a talajtól, hogy a kezed elemelkedjen. Puhán érkezz, könyök enyhén hajlítva."
+    },
+    {
+      "id": "dolphin_plank", "name_hu": "Delfin plank", "name_en": "Dolphin Plank",
+      "equipment": "bodyweight", "measure": "reps",
+      "muscles": { "front_delt": 1.0, "abs": 0.6, "upper_back": 0.3, "triceps": 0.2 },
+      "aliases": ["Dolphin Plank", "Állványos Dolphin Plank or Push-up"],
+      "image": "dolphin-plank.png",
+      "description": "Alkartámaszból told fel a feneked magasba (fordított V alak), majd vissza plank pozícióba."
+    },
+    {
+      "id": "plank", "name_hu": "Alkartámasz (plank)", "name_en": "Standard Plank",
+      "equipment": "bodyweight", "measure": "time", "chain": "core_static", "level": 1,
+      "muscles": { "abs": 1.0, "obliques": 0.5, "front_delt": 0.3, "glutes": 0.2 },
+      "aliases": ["Standard Plank", "Plank to Failure", "Plank"],
+      "image": "plank.png",
+      "description": "Alkartámaszos tartás. A könyököd pontosan a vállad alatt legyen. Feszítsd meg a hasad és a feneked."
+    },
+    {
+      "id": "hollow_body_hold", "name_hu": "Hollow body tartás", "name_en": "Hollow Body Hold",
+      "equipment": "bodyweight", "measure": "time", "chain": "core_static", "level": 2,
+      "muscles": { "abs": 1.0, "hip_flexors": 0.5, "obliques": 0.3 },
+      "aliases": ["Hollow Body Hold"],
+      "description": "Hanyattfekvésben a derék a talajba passzírozva, váll és láb a levegőben, banán alakban tartva. A calisthenics törzsalapja."
+    },
+    {
+      "id": "plank_hip_dips", "name_hu": "Plank csípőbillentés", "name_en": "Plank Hip Dips",
+      "equipment": "bodyweight", "measure": "reps", "unilateral": true,
+      "muscles": { "obliques": 1.0, "abs": 0.5, "front_delt": 0.2 },
+      "aliases": ["Plank Hip Dips"],
+      "image": "plank-dips.png",
+      "description": "Plank csípőbillentéssel. Alkartámaszból finoman forgasd el a csípődet oldalra."
+    },
+    {
+      "id": "russian_twist", "name_hu": "Orosz csavarás", "name_en": "Russian Twist",
+      "equipment": "bodyweight", "measure": "reps", "unilateral": true,
+      "muscles": { "obliques": 1.0, "abs": 0.5, "hip_flexors": 0.3 },
+      "aliases": ["Russian Twist"],
+      "image": "russian-twist.png",
+      "description": "Ülj le, dőlj hátra, forgasd el a vállövedet és érintsd meg a talajt jobbra-balra. Nehezítés: sarkak a levegőben."
+    },
+    {
+      "id": "bicycle_crunch", "name_hu": "Biciklizős hasprés", "name_en": "Bicycle Crunches",
+      "equipment": "bodyweight", "measure": "time",
+      "muscles": { "obliques": 1.0, "abs": 0.8, "hip_flexors": 0.4 },
+      "aliases": ["Bicycle Crunches", "Bicycle Crunch"],
+      "description": "Hanyattfekvésben könyök a szemközti térdhez, a másik láb nyújtva. Lassan, kontrolláltan."
+    },
+    {
+      "id": "sit_up", "name_hu": "Felülés", "name_en": "Standard Sit-up",
+      "equipment": "bodyweight", "measure": "reps",
+      "muscles": { "abs": 1.0, "hip_flexors": 0.6 },
+      "aliases": ["Standard Sit-up", "Sit-up"],
+      "image": "sit-up.png",
+      "description": "Hagyományos felülés. Behajlított térdekkel emeld fel a törzsed a hasizmaid erejével."
+    },
+    {
+      "id": "lying_leg_raise", "name_hu": "Lábemelés hanyattfekvésben", "name_en": "Lying Leg Raise",
+      "equipment": "bodyweight", "measure": "reps", "chain": "core_lever", "level": 1,
+      "muscles": { "abs": 1.0, "hip_flexors": 0.8 },
+      "aliases": ["Lying Leg Raise"],
+      "image": "leg-raise.png",
+      "description": "Nyújtott lábbal emeld fel a lábaidat függőlegesig, a derék végig a talajon."
+    },
+    {
+      "id": "reverse_hip_lift", "name_hu": "Hanyattfekvő csípőemelés (Dragon Flag alap)", "name_en": "Reverse Crunch Hip Lift",
+      "equipment": "bodyweight", "measure": "reps", "chain": "core_lever", "level": 2,
+      "muscles": { "abs": 1.0, "hip_flexors": 0.4, "obliques": 0.3 },
+      "aliases": ["Hanyattfekvő csípőemelés (Dragon Flag alap)"],
+      "description": "Hanyattfekvésből a lábakat függőlegesen tartva robbanékonyan emeld el a csípőt a talajtól, majd kontrolláltan engedd vissza."
+    },
+    {
+      "id": "tuck_dragon_flag_negative", "name_hu": "Zsugor dragon flag negatív", "name_en": "Tuck Dragon Flag Negative",
+      "equipment": "bodyweight", "measure": "reps", "chain": "core_lever", "level": 3,
+      "muscles": { "abs": 1.0, "obliques": 0.4, "hip_flexors": 0.4, "lats": 0.3 },
+      "aliases": ["Tuck Dragon Flag Negatív"],
+      "description": "Felhúzott térdű dragon flag pozícióból csak a leengedés, extrém lassan, a derék nem eshet be."
+    },
+    {
+      "id": "seated_pike_pulses", "name_hu": "Ülő lábemelés-pulzálás", "name_en": "Seated Pike Pulses",
+      "equipment": "bodyweight", "measure": "reps", "chain": "l_sit", "level": 1,
+      "muscles": { "hip_flexors": 1.0, "abs": 0.6, "quads": 0.4 },
+      "aliases": ["Seated Pike Pulses", "Seated Pike Pulses (Nyújtott lábemelés talajon ülve)"],
+      "description": "Talajon ülve, kezek a combod mellett: nyújtott (vagy enyhén hajlított) lábbal kis emelések. L-sit alapozás."
+    },
+    {
+      "id": "tuck_l_sit_hold", "name_hu": "Zsugor L-ülés tartás", "name_en": "Tuck L-Sit Hold",
+      "equipment": "bodyweight", "measure": "time", "chain": "l_sit", "level": 2,
+      "muscles": { "abs": 1.0, "hip_flexors": 1.0, "triceps": 0.5, "front_delt": 0.3, "lats": 0.3 },
+      "aliases": ["Tuck L-Sit Hold", "Tuck L-Sit Hold (Megemelve)", "Tuck L-Sit Hold (Zsugor L-ülés támaszban)"],
+      "description": "Kéztámaszban (könyveken vagy padlón) emeld el a feneked és a felhúzott térded, vállat lenyomva tartsd."
+    },
+    {
+      "id": "prone_cobra", "name_hu": "Hason fekvő kobra", "name_en": "Prone Cobra",
+      "equipment": "bodyweight", "measure": "reps",
+      "muscles": { "lower_back": 1.0, "upper_back": 0.7, "rear_delt": 0.5, "glutes": 0.3 },
+      "aliases": ["Prone Cobra"],
+      "image": "prone-cobra.png", "rehab_suitable": true,
+      "description": "Hasra fekve emeld meg a mellkasod, karjaidat hátrafelé-felfelé húzod, lapockáidat összezárod."
+    },
+    {
+      "id": "superman_hold", "name_hu": "Superman tartás", "name_en": "Superman Hold",
+      "equipment": "bodyweight", "measure": "time",
+      "muscles": { "lower_back": 1.0, "glutes": 0.6, "upper_back": 0.4, "hamstrings": 0.3 },
+      "aliases": ["Superman Hold"],
+      "image": "superman.png",
+      "description": "Hason fekve emeld meg a karjaidat és lábaidat egyszerre, és tartsd meg."
+    },
+    {
+      "id": "air_squat", "name_hu": "Guggolás", "name_en": "Air Squat",
+      "equipment": "bodyweight", "measure": "reps", "chain": "squat", "level": 1,
+      "muscles": { "quads": 1.0, "glutes": 0.7, "adductors": 0.3, "hamstrings": 0.2, "calves": 0.1 },
+      "aliases": ["Air Squat", "Squat"],
+      "image": "squat.png",
+      "description": "Sima testtömeges guggolás. Engedd le a csípőd a térdvonal alá, hátad egyenesen."
+    },
+    {
+      "id": "squat_knee_drive", "name_hu": "Guggolás keresztirányú térdhúzással", "name_en": "Squat to Cross-Body Knee Drive",
+      "equipment": "bodyweight", "measure": "reps",
+      "muscles": { "quads": 1.0, "glutes": 0.6, "obliques": 0.5, "hip_flexors": 0.5, "abs": 0.3 },
+      "aliases": ["Squat to Cross-Body Knee Drive"],
+      "image": "squat-knee-drive.png",
+      "description": "Guggolásból felállva húzd fel az egyik térded keresztbe, érintsd meg az ellentétes könyököddel."
+    },
+    {
+      "id": "reverse_lunge", "name_hu": "Hátrafelé kitörés", "name_en": "Reverse Lunge",
+      "equipment": "bodyweight", "measure": "reps", "unilateral": true, "chain": "lunge", "level": 1,
+      "muscles": { "quads": 1.0, "glutes": 0.8, "glute_med": 0.3, "adductors": 0.3, "hamstrings": 0.3 },
+      "aliases": ["Reverse Lunge"],
+      "image": "lunge.png",
+      "description": "Lépj egy nagyot hátrafelé, engedd le a csípőd, amíg a hátsó térded majdnem a talajt érinti, majd told vissza magad állásba."
+    },
+    {
+      "id": "walking_lunge", "name_hu": "Sétáló kitörés", "name_en": "Walking Lunge",
+      "equipment": "bodyweight", "measure": "reps", "unilateral": true, "chain": "lunge", "level": 2,
+      "muscles": { "quads": 1.0, "glutes": 0.8, "glute_med": 0.4, "adductors": 0.3, "hamstrings": 0.3 },
+      "aliases": ["Walking Lunge"],
+      "image": "lunge.png",
+      "description": "Lépj nagyot előre, engedd le a csípőd, a hátsó térded majdnem érinti a talajt."
+    },
+    {
+      "id": "calf_raise", "name_hu": "Vádliemelés állva", "name_en": "Standing Calf Raise",
+      "equipment": "bodyweight", "measure": "reps",
+      "muscles": { "calves": 1.0 },
+      "aliases": ["Standing Calf Raise", "Calf Raise"],
+      "image": "calf-raise.png", "rehab_suitable": true,
+      "description": "Emelkedj lábujjhegyre, feszítsd rá a vádlid a tetőponton, lassan engedd vissza."
+    },
+    {
+      "id": "high_knees", "name_hu": "Térdemelés helyben futva", "name_en": "High Knees",
+      "equipment": "bodyweight", "measure": "time",
+      "muscles": { "hip_flexors": 1.0, "quads": 0.5, "calves": 0.5, "abs": 0.3 },
+      "aliases": ["High Knees"],
+      "image": "high-knees.png",
+      "description": "Helyben futás magas térdemeléssel. Intenzív kardió, térdek csípőmagasságig."
+    },
+    {
+      "id": "glute_bridge", "name_hu": "Farizomhíd (csípőemelés)", "name_en": "Glute Bridge",
+      "equipment": "bodyweight", "measure": "reps", "chain": "bridge", "level": 1,
+      "muscles": { "glutes": 1.0, "hamstrings": 0.5, "lower_back": 0.3 },
+      "aliases": ["Hanyattfekvő csípőemelés (Farizom fókusz)", "Glute Bridge"],
+      "rehab_suitable": true,
+      "description": "Hanyattfekvésben, talpak a földön emeld a csípőd, a csúcson szorítsd össze a farizmod. Futóknak alapgyakorlat."
+    },
+    {
+      "id": "single_leg_glute_bridge", "name_hu": "Egylábas farizomhíd", "name_en": "Single-Leg Glute Bridge",
+      "equipment": "bodyweight", "measure": "reps", "unilateral": true, "chain": "bridge", "level": 2,
+      "muscles": { "glutes": 1.0, "glute_med": 0.5, "hamstrings": 0.5, "lower_back": 0.3 },
+      "aliases": ["Single-Leg Glute Bridge"],
+      "rehab_suitable": true,
+      "description": "Mint a farizomhíd, de egy lábon: a medence maradjon vízszintes, ne billenjen be."
+    },
+    {
+      "id": "clamshell", "name_hu": "Kagylógyakorlat", "name_en": "Clamshell",
+      "equipment": "band", "measure": "reps", "unilateral": true,
+      "muscles": { "glute_med": 1.0, "glutes": 0.3 },
+      "aliases": ["Clamshell", "Kagylógyakorlat"],
+      "rehab_suitable": true,
+      "description": "Oldalfekvésben, behajlított térddel, sarkak együtt: nyisd a felső térded, a medence nem gördül hátra. Szalaggal nehezíthető."
+    },
+    {
+      "id": "side_lying_hip_abduction", "name_hu": "Oldalfekvő lábemelés", "name_en": "Side-Lying Hip Abduction",
+      "equipment": "bodyweight", "measure": "reps", "unilateral": true,
+      "muscles": { "glute_med": 1.0, "obliques": 0.2 },
+      "aliases": ["Side-Lying Hip Abduction", "Oldalfekvő lábemelés"],
+      "rehab_suitable": true,
+      "description": "Oldalfekvésben nyújtott felső lábat emelj enyhén hátrafelé, lábfej előre néz. Lassú, kontrollált mozgás."
+    },
+    {
+      "id": "band_seated_row", "name_hu": "Gumiszalagos evezés ülve", "name_en": "Seated Band Row",
+      "equipment": "band", "measure": "reps", "chain": "band_row", "level": 1,
+      "muscles": { "upper_back": 1.0, "lats": 0.8, "rear_delt": 0.5, "biceps": 0.5, "forearms": 0.2 },
+      "aliases": ["Gumiszalagos evezés ülve", "Gumiszalagos evezés ülve (Kétkezes)", "Gumiszalagos evezés",
+                  "Gumiszalagos evezés (Kétkezes)", "Gumiszalagos evezés (Kétkezes pumpa)", "Gumiszalagos evezés (9kg)"],
+      "image": "gumiszalagos evezés ülve.png",
+      "description": "Nyújtott lábbal ülsz, a szalag a talpadba akasztva. Húzd a szalagot a hasadhoz, miközben a lapockáidat erősen összezárod."
+    },
+    {
+      "id": "band_archer_row", "name_hu": "Gumiszalagos íjász evezés", "name_en": "Band Archer Row",
+      "equipment": "band", "measure": "reps", "unilateral": true, "chain": "band_row", "level": 2,
+      "muscles": { "upper_back": 1.0, "lats": 0.8, "rear_delt": 0.6, "biceps": 0.5, "obliques": 0.2 },
+      "aliases": ["Gumiszalagos íjász evezés", "Gumiszalagos íjász evezés (Archer Row)", "Gumiszalagos íjász evezés (9kg)"],
+      "description": "Egykezes evezés szalaggal, a másik kar nyújtva tart. A csúcson 1 mp megtartás, lapocka zár."
+    },
+    {
+      "id": "band_pull_apart", "name_hu": "Gumiszalagos széthúzás (pull-apart)", "name_en": "Band Pull-Apart",
+      "equipment": "band", "measure": "reps",
+      "muscles": { "rear_delt": 1.0, "upper_back": 0.8, "side_delt": 0.2 },
+      "aliases": ["Gumiszalagos húzás mellhez (Pull-Apart)", "Band Pull-Apart"],
+      "image": "Gumiszalagos húzás mellhez.png", "rehab_suitable": true,
+      "description": "Vállmagasságban előre tartott nyújtott karokkal húzd szét a szalagot a mellkasodig. Vállvédő, tartásjavító gyakorlat."
+    },
+    {
+      "id": "band_biceps_curl", "name_hu": "Gumiszalagos bicepszhajlítás", "name_en": "Band Biceps Curl",
+      "equipment": "band", "measure": "reps", "chain": "band_curl", "level": 1,
+      "muscles": { "biceps": 1.0, "forearms": 0.4 },
+      "aliases": ["Gumiszalagos bicepsz hajlítás"],
+      "image": "Gumiszalagos bicepsz hajlítás.png",
+      "description": "Állva, a szalagra rálépve; könyök a bordákhoz zárva, csak alkarból húzol a csúcsfeszülésig."
+    },
+    {
+      "id": "band_single_arm_curl", "name_hu": "Egykezes szalagos bicepszhajlítás", "name_en": "Single-Arm Band Curl",
+      "equipment": "band", "measure": "reps", "unilateral": true, "chain": "band_curl", "level": 2,
+      "muscles": { "biceps": 1.0, "forearms": 0.4 },
+      "aliases": ["Egykezes mellkasi bicepsz (szalaggal)"],
+      "description": "Egykezes hajlítás szalaggal, maximális csúcsfeszüléssel; más izommal ne segíts be."
+    },
+    {
+      "id": "band_straight_arm_pulldown", "name_hu": "Nyújtott karú szalagos letolás", "name_en": "Band Straight-Arm Pulldown",
+      "equipment": "band", "measure": "reps",
+      "muscles": { "lats": 1.0, "triceps": 0.3, "abs": 0.3 },
+      "aliases": ["Nyújtott karú szalagos letolás (Front Lever Prep)"],
+      "description": "Szalag fent rögzítve, nyújtott karral húzd le a combodig. Front lever előkészítő hátgyakorlat."
+    },
+    {
+      "id": "prone_towel_pulldown", "name_hu": "Hasonfekvő törölközős lehúzás", "name_en": "Prone Towel Pulldown",
+      "equipment": "towel", "measure": "reps",
+      "muscles": { "lats": 1.0, "upper_back": 0.7, "rear_delt": 0.4, "lower_back": 0.3, "biceps": 0.3 },
+      "aliases": ["Hasonfekvő törölközős lehúzás (Prone Towel Pulldown)"],
+      "description": "Hasonfekvésben, mellkas picit megemelve; a törölközőt végig széthúzva feszítve húzd le a mellkasodig."
+    }
+  ]
+}

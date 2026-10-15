@@ -1,0 +1,9 @@
+# A Docker build csak a backend és a frontend forrását viszi (adat, archívum, régi app nem kell).
+*
+!backend/requirements.txt
+!backend/app/
+!frontend/
+frontend/node_modules/
+frontend/dist/
+frontend/tests/
+**/__pycache__/

@@ -1,0 +1,27 @@
+# Személyes adatok és archívum – helyben maradnak, a repóba nem kerülnek
+data/
+_archiv/
+
+# Build és függőségek
+frontend/node_modules/
+frontend/dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Környezet / titkok
+.env
+*.local
+
+# Szerkesztő / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

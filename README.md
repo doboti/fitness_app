@@ -82,6 +82,21 @@ fájdalom esetén automatikus kímélés, heti tervjavaslat szabálymotorral és
 Egy eszközön több fiók is lehet (Beállítások → *Másik fiók hozzáadása*), a fiókok között egy koppintással lehet váltani.
 A régi app exportját és új heti terveket a Beállításokból is fel lehet tölteni, nem kell hozzá `docker exec`.
 
+## Helyi kipróbálás (Windows, Docker nélkül)
+
+Python 3.12+ és Node.js kell. A repó gyökeréből, PowerShellben:
+
+```powershell
+.\scripts\run-local.ps1          # első futáskor környezet + build, utána: http://localhost:8420
+# másik ablakban: fiók létrehozása és régi adatok betöltése
+.\scripts\run-local.ps1 -Cli create-user --name ferfi --gender male --height 175 --age 30 --target-weight 70
+.\scripts\run-local.ps1 -Cli import-legacy --name ferfi data\exports\male_results_2026_w42.json
+```
+
+A helyi adatbázis a `backend\data\local.db` fájl (gitignore-ban), független a szerverétől. Törlésével tiszta lappal indulhatsz.
+Böngészőben a `localhost`-on minden működik, az offline mód is. Telefonról a géped IP-címén csak HTTPS nélkül érhető el,
+így az offline mód és a fájdalom-rögzítés nem működik. Telefonos teszthez a Tailscale kell (lásd fent).
+
 ## Fejlesztés
 
 Lásd: [backend/README.md → Fejlesztés](backend/README.md#fejlesztés). Röviden: `cd backend && pytest`, `cd frontend && npm test`,

@@ -89,8 +89,8 @@ A régi app exportját és új heti terveket a Beállításokból is fel lehet t
 - **Safariban add hozzá a főképernyőhöz,** és onnan indítsd: így teljes képernyős, saját ikonnal fut, és az iOS nem törli
   az adatait (a sima Safari-lapok tárhelyét 7 nap használatlanság után törölheti).
 - Az első megnyitáskor töltsd be egyszer online, utána offline is indul. Az adat amúgy is a szerverre szinkronizálódik.
-- **Johinak:** a Tailscale admin felületén oszd meg vele a
-  szervert (*Share* a gépnél, vagy hívd meg a tailnetbe), majd ő is a fenti lépésekkel telepíti a saját telefonjára.
+- **Johinak:** a Tailscale admin felületén oszd meg vele a szervert (*Share* a gépnél, vagy hívd meg a tailnetbe), majd ő
+  is a fenti lépésekkel telepíti a saját telefonjára, és a profilválasztóban a „Johi (nő)”-t választja.
 
 ## Helyi kipróbálás (Windows, Docker nélkül)
 

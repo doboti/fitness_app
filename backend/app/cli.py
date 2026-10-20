@@ -1,6 +1,7 @@
 """Parancssori karbantartás.
 
-    python -m app.cli create-user --name ferfi --gender male
+    python -m app.cli create-user --name Boti --gender male
+    python -m app.cli rename-user --name ferfi --new-name Boti
     python -m app.cli list-users
     python -m app.cli rotate-token --name ferfi
     python -m app.cli import-legacy --name ferfi ../results/male_results_2026_w31.json ../edzestervek_backup/*.json
@@ -45,7 +46,20 @@ def cmd_create_user(args) -> None:
                     target_weight_kg=args.target_weight, token_hash=hash_token(token),
                     updated_at=now_iso(), server_seq=next_seq(db)))
         db.commit()
-    print(f"Felhasználó létrehozva: {args.name}\nToken (csak most látszik, mentsd el!):\n{token}")
+    print(f"Profil létrehozva: {args.name} – az appban a profilválasztóban jelenik meg.")
+    print(f"API-token szkriptekhez (az apphoz nem kell): {token}")
+
+
+def cmd_rename_user(args) -> None:
+    with new_session() as db:
+        user = _get_user(db, args.name)
+        if db.scalar(select(User).where(User.name == args.new_name)):
+            sys.exit(f"Már létezik: {args.new_name}")
+        user.name = args.new_name
+        user.updated_at = now_iso()
+        user.server_seq = next_seq(db)
+        db.commit()
+    print(f"Átnevezve: {args.name} → {args.new_name}")
 
 
 def cmd_list_users(_args) -> None:
@@ -133,6 +147,11 @@ def main(argv: list[str] | None = None) -> None:
     p.set_defaults(func=cmd_create_user)
 
     sub.add_parser("list-users").set_defaults(func=cmd_list_users)
+
+    p = sub.add_parser("rename-user")
+    p.add_argument("--name", required=True)
+    p.add_argument("--new-name", required=True)
+    p.set_defaults(func=cmd_rename_user)
 
     p = sub.add_parser("rotate-token")
     p.add_argument("--name", required=True)

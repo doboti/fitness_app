@@ -8,12 +8,18 @@ A telepítés, a telefonos beállítás és a mappaszerkezet a gyökér [README.
 
 ## API
 
-Minden végpont (a katalógust és a health-et kivéve) `Authorization: Bearer <token>` fejlécet vár.
+Jelszó nincs: a belépéskor a profilt egy legördülő menüből lehet választani (`GET /api/profiles`), és az eszköz ekkor
+kap egy hozzáférési kulcsot (`POST /api/profiles/{id}/session`). A szerver csak a gépen belül és a Tailscale-en érhető el,
+ezért ez elég védelem. A többi végpont ezt a kulcsot várja `Authorization: Bearer <token>` fejlécben (a CLI
+`create-user` által kiírt token szkriptekhez is használható).
 
 | Végpont | Leírás |
 |---|---|
 | `GET /api/health` | állapot + aktuális szinkron-kurzor |
 | `GET /api/exercises`, `GET /api/muscles` | katalógus: izomszorzók, progressziós láncok, aliasok |
+| `GET /api/profiles` | a választható profilok (név, nem) – kulcs nélkül |
+| `POST /api/profiles/{id}/session` | profil kiválasztása → `{"token", "user"}` az adott eszköznek |
+| `POST /api/logout` | az eszköz kulcsának érvénytelenítése |
 | `GET/PUT /api/me` | profil (magasság, kor, célsúly) |
 | `POST /api/sync` | push + pull egy hívásban (lásd lent) |
 | `POST /api/programs` | heti terv feltöltése a régi `YYYY-WXX.json` formátumban |
@@ -83,8 +89,8 @@ Ami nem felel meg, kimarad (ezt a javaslat jelzi). A többi ugyanúgy változás
 1. A compose-ban: `GEMINI_API_KEY=...`, opcionálisan `GEMINI_MODEL` (alapértelmezett: `gemini-3.8-flash`; olcsóbb a `gemini-3.5-flash-lite`).
 2. Az appban: Haladás → *Értékelés kérése*. Havonta automatikusan, crontabból (minden hónap 1-jén 7:00-kor):
    ```
-   0 7 1 * *  docker exec workout-api python -m app.cli coach-review --name ferfi >> /var/log/workout-coach.log 2>&1
-   5 7 1 * *  docker exec workout-api python -m app.cli coach-review --name noi   >> /var/log/workout-coach.log 2>&1
+   0 7 1 * *  docker exec workout-api python -m app.cli coach-review --name Boti >> /var/log/workout-coach.log 2>&1
+   5 7 1 * *  docker exec workout-api python -m app.cli coach-review --name Johi  >> /var/log/workout-coach.log 2>&1
    ```
    A javaslat jóváhagyásra vár az appban, semmi nem élesedik magától.
 

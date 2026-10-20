@@ -27,9 +27,19 @@ class User(Base):
     height_cm: Mapped[float | None] = mapped_column(Float)
     age: Mapped[int | None] = mapped_column(Integer)
     target_weight_kg: Mapped[float | None] = mapped_column(Float)
-    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)   # CLI-ből kiadott token (szkriptekhez)
     updated_at: Mapped[str] = mapped_column(String(32))
     server_seq: Mapped[int] = mapped_column(Integer, default=0, index=True)
+
+
+class DeviceToken(Base):
+    """Profilválasztáskor eszközönként kiadott hozzáférési kulcs (kijelentkezéskor csak ez törlődik)."""
+    __tablename__ = "device_tokens"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[str] = mapped_column(String(32))
+    user_agent: Mapped[str | None] = mapped_column(String(200))
 
 
 # ---------------------------------------------------------------------------

@@ -45,16 +45,16 @@ fájdalom esetén automatikus kímélés, heti tervjavaslat szabálymotorral és
    docker compose up -d --build workout-api
    curl http://127.0.0.1:8420/api/health
    ```
-3. **Felhasználók** (a token csak egyszer jelenik meg, mentsd el, ez kell majd a telefonon):
+3. **Profilok** (az appban a belépéskor egy legördülő menüből választható, jelszó nincs):
    ```bash
-   docker exec -it workout-api python -m app.cli create-user --name ferfi --gender male --height 175 --age 30 --target-weight 70
-   docker exec -it workout-api python -m app.cli create-user --name noi --gender female
+   docker exec -it workout-api python -m app.cli create-user --name Boti --gender male --height 175 --age 30 --target-weight 70
+   docker exec -it workout-api python -m app.cli create-user --name Johi --gender female
    ```
 4. **Régi adatok betöltése:** legegyszerűbb a telefonos appból (Beállítások → *Régi app exportjának betöltése*). Szerveroldalon:
    másold a helyi `data/exports/` és `data/plans/` tartalmát a `workout-data/import/` mappába, majd:
    ```bash
-   docker exec workout-api sh -c 'python -m app.cli import-legacy --name ferfi /data/import/exports/*.json /data/import/plans/ferfi/*.json'
-   docker exec workout-api sh -c 'python -m app.cli import-legacy --name noi /data/import/plans/noi/*.json'
+   docker exec workout-api sh -c 'python -m app.cli import-legacy --name Boti /data/import/exports/*.json /data/import/plans/ferfi/*.json'
+   docker exec workout-api sh -c 'python -m app.cli import-legacy --name Johi /data/import/plans/noi/*.json'
    ```
    A fájlnév szerinti sorrendben töltődnek be, a későbbi export felülírja a korábbit. Ugyanaz a fájl újra betölthető.
    A végén kiírja a fel nem ismert gyakorlatneveket; ezeket aliasként kell felvenni a [backend/app/seed/exercises.json](backend/app/seed/exercises.json)-ba.
@@ -74,7 +74,7 @@ fájdalom esetén automatikus kímélés, heti tervjavaslat szabálymotorral és
 ## Telefon beállítása
 
 1. Telepítsd a **Tailscale** appot, és lépj be ugyanabba a tailnetbe.
-2. Nyisd meg a `https://<gép>.<tailnet>.ts.net` címet (Chrome / Safari), és add meg a `create-user` által kiírt tokent.
+2. Nyisd meg a `https://<gép>.<tailnet>.ts.net` címet (Chrome / Safari), és válaszd ki a profilodat (Boti / Johi).
 3. **Telepítés:** Android Chrome → menü → *Alkalmazás telepítése*; iPhone Safari → Megosztás → *Főképernyőhöz adás*.
 4. Az első betöltés után az app **offline is indul**. A rögzített adat a telefonon marad (IndexedDB), és amint
    eléri a szervert, magától szinkronizál (a fejlécben: *mentve* / *N vár* / *nincs kapcsolat*).
@@ -89,7 +89,7 @@ A régi app exportját és új heti terveket a Beállításokból is fel lehet t
 - **Safariban add hozzá a főképernyőhöz,** és onnan indítsd: így teljes képernyős, saját ikonnal fut, és az iOS nem törli
   az adatait (a sima Safari-lapok tárhelyét 7 nap használatlanság után törölheti).
 - Az első megnyitáskor töltsd be egyszer online, utána offline is indul. Az adat amúgy is a szerverre szinkronizálódik.
-- **A párodnak:** hozz létre neki saját fiókot (`create-user --gender female`), a Tailscale admin felületén oszd meg vele a
+- **Johinak:** a Tailscale admin felületén oszd meg vele a
   szervert (*Share* a gépnél, vagy hívd meg a tailnetbe), majd ő is a fenti lépésekkel telepíti a saját telefonjára.
 
 ## Helyi kipróbálás (Windows, Docker nélkül)
@@ -99,8 +99,8 @@ Python 3.12+ és Node.js kell. A repó gyökeréből, PowerShellben:
 ```powershell
 .\scripts\run-local.ps1          # első futáskor környezet + build, utána: http://localhost:8420
 # másik ablakban: fiók létrehozása és régi adatok betöltése
-.\scripts\run-local.ps1 -Cli create-user --name ferfi --gender male --height 175 --age 30 --target-weight 70
-.\scripts\run-local.ps1 -Cli import-legacy --name ferfi data\exports\male_results_2026_w42.json
+.\scripts\run-local.ps1 -Cli create-user --name Boti --gender male --height 175 --age 30 --target-weight 70
+.\scripts\run-local.ps1 -Cli import-legacy --name Boti data\exports\male_results_2026_w42.json
 ```
 
 A helyi adatbázis a `backend\data\local.db` fájl (gitignore-ban), független a szerverétől. Törlésével tiszta lappal indulhatsz.

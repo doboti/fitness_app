@@ -91,8 +91,6 @@ A régi app exportját és új heti terveket a Beállításokból is fel lehet t
 - Az első megnyitáskor töltsd be egyszer online, utána offline is indul. Az adat amúgy is a szerverre szinkronizálódik.
 - **A párodnak:** hozz létre neki saját fiókot (`create-user --gender female`), a Tailscale admin felületén oszd meg vele a
   szervert (*Share* a gépnél, vagy hívd meg a tailnetbe), majd ő is a fenti lépésekkel telepíti a saját telefonjára.
-- Natív iOS-app is van (`mobile/` az `ios-app` ágon), de az önálló telepítéséhez fizetős Apple Developer fiók kellene;
-  a mindennapi használatra a PWA a javasolt út.
 
 ## Helyi kipróbálás (Windows, Docker nélkül)
 

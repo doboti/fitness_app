@@ -1,4 +1,5 @@
-import { listAccounts, removeAccount, switchAccount } from '../accounts.js';
+import { listAccounts, switchAccount } from '../accounts.js';
+import { openProfile, profileLabel } from './login.js';
 import { setMeta } from '../db.js';
 import { html, parseNumber, when } from '../ui.js';
 
@@ -10,10 +11,20 @@ export async function render(ctx) {
         ...(await ctx.db.pain_reports.filter((d) => !!d._error).toArray()).map((d) => ({ label: `Fájdalom ${d.date}`, error: d._error })),
     ];
     const programs = (await ctx.db.programs.toArray()).sort((a, b) => b.week_id.localeCompare(a.week_id));
-    const accounts = listAccounts();
+    const profiles = await ctx.api.get('/api/profiles', { timeout: 3000 }).catch(() => []);
     const lastSync = ctx.state.lastSync ? new Date(ctx.state.lastSync).toLocaleString('hu-HU') : 'még nem volt';
 
     return html`
+        <div class="card mb-4">
+            <div class="card-title">Profilváltás</div>
+            <select class="input" data-change="profile-switch" aria-label="Profil">
+                ${profiles.length
+        ? profiles.map((p) => html`<option value="${p.id}" ${p.id === ctx.account.uid ? 'selected' : ''}>${profileLabel(p)}</option>`)
+        : html`<option>${ctx.user.name} (a profillistához kapcsolat kell)</option>`}
+            </select>
+            <p class="text-xs text-slate-500 mt-2">Mindkét profil adatai külön tárolódnak ezen az eszközön is, váltáskor nem vesznek el.</p>
+        </div>
+
         <div class="card mb-4">
             <div class="card-title">Profil · ${user.name}</div>
             <div class="grid grid-cols-3 gap-3">
@@ -52,19 +63,6 @@ export async function render(ctx) {
             <p class="text-xs text-slate-500 mt-2">Feltöltéshez internetkapcsolat kell. Ugyanaz a fájl újra feltölthető, felülírja önmagát.</p>
             ${when(programs.length, () => html`
                 <div class="mt-3 text-sm text-slate-400">Betöltött hetek: ${programs.map((p) => p.week_id.split('-')[1]).join(', ')}</div>`)}
-        </div>
-
-        <div class="card">
-            <div class="card-title">Fiókok ezen az eszközön</div>
-            <div class="space-y-2">
-                ${accounts.map((a) => html`
-                    <div class="flex items-center gap-2 rounded-xl bg-slate-900 p-3">
-                        <span class="flex-1">${a.gender === 'female' ? '👩' : '👨'} ${a.name}${a.uid === ctx.account.uid ? html` <span class="text-xs text-primary">(aktív)</span>` : ''}</span>
-                        ${when(a.uid !== ctx.account.uid, () => html`<button class="btn-secondary btn-sm" data-action="account-switch" data-uid="${a.uid}">Váltás</button>`)}
-                        <button class="btn-ghost btn-sm" data-action="account-remove" data-uid="${a.uid}">Kijelentkezés</button>
-                    </div>`)}
-            </div>
-            <button class="btn-secondary mt-3" data-action="account-add">+ Másik fiók hozzáadása</button>
         </div>`;
 }
 
@@ -106,25 +104,15 @@ export const actions = {
         ctx.toast(`Betöltve: ${report.sessions} edzés, ${report.daily_logs} napi napló, ${report.programs} heti terv.`
             + (unmatched.length ? `\nNincs a katalógusban: ${unmatched.join(', ')}` : ''), unmatched.length ? 'warn' : 'success');
     },
-    'account-switch': (ctx, el) => {
-        switchAccount(Number(el.dataset.uid));
-        location.reload();
-    },
-    'account-remove': async (ctx, el) => {
-        const uid = Number(el.dataset.uid);
-        if (uid === ctx.account.uid) {
-            const pending = ctx.state.pending;
-            const msg = pending
-                ? `${pending} bejegyzés még nincs a szerveren, és kijelentkezéskor elveszik erről az eszközről. Biztosan?`
-                : 'Kijelentkezel erről az eszközről? Az adataid a szerveren megmaradnak.';
-            if (!confirm(msg)) return;
-            await ctx.db.delete();
+    'profile-switch': async (ctx, el) => {
+        const uid = Number(el.value);
+        if (!uid || uid === ctx.account.uid) return;
+        // ha ezen az eszközön már volt ez a profil, a meglévő kulcsát és helyi adatait használjuk
+        if (listAccounts().some((a) => a.uid === uid)) {
+            switchAccount(uid);
+        } else {
+            await openProfile({ id: uid });
         }
-        removeAccount(uid);
-        location.reload();
-    },
-    'account-add': () => {
-        sessionStorage.setItem('workout.addAccount', '1');
         location.reload();
     },
 };

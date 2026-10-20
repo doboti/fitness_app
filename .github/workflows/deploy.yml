@@ -1,0 +1,62 @@
+name: Deploy PROD
+
+# Kézi indítás: Actions → Deploy PROD → Run workflow → ág kiválasztása.
+# A GitHub gépe ideiglenesen belép a tailnetbe, és SSH-n szól az Optiplexnek, hogy telepítse ezt a commitot.
+# Az SSH-kulcs az Optiplexen kötött parancshoz van rendelve (scripts/deploy.sh), mást nem lehet vele futtatni.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tesztek
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Telepítés az Optiplexre
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 30
+    steps:
+      - name: Csatlakozás a tailnethez (ideiglenes tag:ci eszközként)
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: ${{ secrets.DEPLOY_HOST }}
+
+      - name: SSH-kulcs beállítása
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Telepítés (${{ github.ref_name }} @ ${{ github.sha }})
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes \
+              "$DEPLOY_USER@$DEPLOY_HOST" "$GITHUB_SHA"
+
+      - name: Összefoglaló
+        if: always()
+        run: |
+          {
+            echo "### Deploy PROD"
+            echo "- Ág: \`${{ github.ref_name }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Eredmény: **${{ job.status }}**"
+          } >> "$GITHUB_STEP_SUMMARY"

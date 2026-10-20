@@ -5,14 +5,7 @@ import { renderLogin } from './views/login.js';
 
 async function boot() {
     const root = document.getElementById('app');
-    const addingAccount = sessionStorage.getItem('workout.addAccount') === '1';
-    sessionStorage.removeItem('workout.addAccount');
-
-    let account = activeAccount();
-    if (!account || addingAccount) {
-        const loggedIn = await renderLogin(root, { canCancel: !!account });
-        account = loggedIn || account;
-    }
+    const account = activeAccount() || await renderLogin(root);
     await startApp(account);
 }
 

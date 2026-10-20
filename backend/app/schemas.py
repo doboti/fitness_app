@@ -54,6 +54,12 @@ class UserOut(_Doc):
     updated_at: str
 
 
+class ProfileOut(_Doc):
+    id: int
+    name: str
+    gender: str
+
+
 class UserUpdate(BaseModel):
     height_cm: float | None = Field(default=None, ge=100, le=250)
     age: int | None = Field(default=None, ge=10, le=100)

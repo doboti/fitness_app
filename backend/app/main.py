@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from datetime import date as Date
 
-from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -9,11 +9,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from . import coach, config, gemini, schemas
-from .auth import hash_token
+from .auth import hash_token, new_token
 from .catalog import ExerciseMatcher, load_seed
 from .db import get_db, get_engine, new_session
 from .legacy import import_legacy, upsert_program
-from .models import Base, Exercise, MuscleGroup, PlanProposal, User
+from .models import Base, DeviceToken, Exercise, MuscleGroup, PlanProposal, User
 from .planning import PlanningError, accept_proposal, generate_proposal, proposal_to_dict
 from .stats import weekly_muscle_sets
 from .sync import apply_sync, current_cursor, program_to_doc
@@ -43,7 +43,9 @@ def current_user(authorization: str = Header(default=""), db: Session = Depends(
     scheme, _, token = authorization.partition(" ")
     if scheme.lower() != "bearer" or not token:
         raise HTTPException(401, "Hiányzó token", headers={"WWW-Authenticate": "Bearer"})
-    user = db.scalar(select(User).where(User.token_hash == hash_token(token)))
+    digest = hash_token(token)
+    device = db.get(DeviceToken, digest)
+    user = db.get(User, device.user_id) if device else db.scalar(select(User).where(User.token_hash == digest))
     if user is None:
         raise HTTPException(401, "Érvénytelen token", headers={"WWW-Authenticate": "Bearer"})
     return user
@@ -52,6 +54,38 @@ def current_user(authorization: str = Header(default=""), db: Session = Depends(
 @app.get("/api/health")
 def health(db: Session = Depends(get_db)):
     return {"status": "ok", "cursor": current_cursor(db)}
+
+
+# --- profilválasztás (jelszó nélkül; a szerver csak a Tailscale-en érhető el) ---
+
+@app.get("/api/profiles", response_model=list[schemas.ProfileOut])
+def list_profiles(db: Session = Depends(get_db)):
+    """A választható profilok a belépő képernyő legördülő menüjéhez."""
+    return db.scalars(select(User).order_by(User.name)).all()
+
+
+@app.post("/api/profiles/{user_id}/session")
+def open_profile(user_id: int, request: Request, db: Session = Depends(get_db)):
+    """Profil kiválasztása: az eszköz saját hozzáférési kulcsot kap ehhez a profilhoz."""
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(404, "Nincs ilyen profil")
+    token = new_token()
+    db.add(DeviceToken(token_hash=hash_token(token), user_id=user.id, created_at=now_iso(),
+                       user_agent=(request.headers.get("user-agent") or "")[:200] or None))
+    db.commit()
+    return {"token": token, "user": schemas.UserOut.model_validate(user)}
+
+
+@app.post("/api/logout")
+def logout(authorization: str = Header(default=""), db: Session = Depends(get_db)):
+    """Az adott eszköz kulcsának érvénytelenítése."""
+    _, _, token = authorization.partition(" ")
+    device = db.get(DeviceToken, hash_token(token)) if token else None
+    if device:
+        db.delete(device)
+        db.commit()
+    return {"ok": True}
 
 
 # --- katalógus --------------------------------------------------------------

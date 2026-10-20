@@ -1,19 +1,21 @@
-# Önállóan:            docker compose up -d --build
-# Meglévő stackbe:     másold be a workout-api blokkot, és a "context"-et állítsd erre a repóra (pl. ./workout-app).
+# PROD: a Deploy PROD workflow (scripts/deploy.sh) ezzel indítja, projekt-névvel: docker compose -p workout …
+# Kézzel, a repó gyökeréből:  WORKOUT_DATA_DIR=/srv/workout/data docker compose -p workout up -d --build
+# Titkok (pl. GEMINI_API_KEY=…, GEMINI_MODEL=…) a repó gyökerében lévő .env fájlba – ez gitignore-ban van.
 services:
   workout-api:
     build:
       context: .
       dockerfile: Dockerfile
+    image: workout-api:latest
     container_name: workout-api
     restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
     environment:
       - TZ=Europe/Budapest
-      # Havi Gemini edzői kör (opcionális; nélküle a kézi mód működik):
-      # - GEMINI_API_KEY=${GEMINI_API_KEY}
-      # - GEMINI_MODEL=gemini-3.8-flash
     volumes:
-      - ./workout-data:/data
+      - ${WORKOUT_DATA_DIR:-./workout-data}:/data
     # Csak a hoston érhető el; kifelé a Tailscale (tailscale serve) adja a HTTPS-t.
     ports:
       - "127.0.0.1:8420:8420"

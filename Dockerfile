@@ -1,7 +1,7 @@
 # A repó gyökeréből: docker compose up -d --build   (vagy: docker build -t workout-api .)
 
 # --- 1. PWA frontend build ---------------------------------------------------
-FROM node:20-alpine AS frontend
+FROM node:22-alpine AS frontend
 WORKDIR /frontend
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund

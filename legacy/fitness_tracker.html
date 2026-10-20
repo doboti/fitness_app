@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness & Workout Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        /* THEME VARIABLES */
+        :root {
+            /* Férfi (Alapértelmezett Zöld/Emerald) */
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-light: #34d399;
+            --primary-dark: #047857;
+            --primary-alpha-10: rgba(16, 185, 129, 0.1);
+            --primary-alpha-40: rgba(16, 185, 129, 0.4);
+            --primary-alpha-08: rgba(16, 185, 129, 0.08);
+        }
+
+        body.theme-female {
+            /* Női (Rózsaszín/Málna/Rose) */
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --primary-light: #fb7185;
+            --primary-dark: #be185d;
+            --primary-alpha-10: rgba(244, 63, 94, 0.1);
+            --primary-alpha-40: rgba(244, 63, 94, 0.4);
+            --primary-alpha-08: rgba(244, 63, 94, 0.08);
+        }
+
+        /* Utility classes to replace hardcoded tailwind colors */
+        .text-primary { color: var(--primary); }
+        .text-primary-light { color: var(--primary-light); }
+        .bg-primary { background-color: var(--primary); }
+        .bg-primary-hover:hover { background-color: var(--primary-hover); }
+        .border-primary { border-color: var(--primary); }
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover {
+            background-color: #1e293b;
+        }
+
+        .calendar-day.has-data::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary);
+            border-radius: 50%;
+        }
+
+        .calendar-day.selected {
+            background-color: var(--primary);
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 8px var(--primary-alpha-40);
+        }
+
+        .calendar-day.today.selected {
+            border: 2px solid #0f172a;
+        }
+
+        .input-field {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-alpha-10);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #0f172a;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .progress-bar {
+            background-color: #334155;
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background-color: var(--primary);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .nav-btn {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background-color: #1e293b;
+        }
+
+        .nav-btn.active {
+            background-color: #1e293b;
+            border-left-color: var(--primary);
+        }
+
+        #bottom-nav .nav-btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem;
+            border-left: none;
+            border-top: 3px solid transparent;
+        }
+
+        #bottom-nav .nav-btn.active {
+            border-left: none;
+            border-top-color: var(--primary);
+        }
+
+        .view-content {
+            display: block;
+        }
+
+        .view-content.hidden {
+            display: none;
+        }
+
+        .exercise-item {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .rest-day-banner {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 1rem;
+        }
+
+        .week-ribbon {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0;
+            background-color: #0f172a;
+            justify-content: space-between;
+        }
+
+        .week-day-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .week-day-label {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .week-day-btn {
+            width: 1.875rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #1e293b;
+            border: 2px solid transparent;
+            position: relative;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .week-day-btn:hover {
+            background-color: #334155;
+            transform: translateY(-1px);
+        }
+
+        .week-day-btn.active {
+            background-color: var(--primary);
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .week-day-btn.today {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px var(--primary);
+        }
+
+        .week-day-btn.has-data::after {
+            content: '';
+            position: absolute;
+            bottom: 3px;
+            width: 4px;
+            height: 4px;
+            background-color: var(--primary);
+            border-radius: 50%;
+        }
+
+        .week-day-btn.active.has-data::after {
+            background-color: #0f172a;
+        }
+        
+        /* KPI & Chart styles */
+        .kpi-card { display: flex; flex-direction: column; gap: 0.5rem; }
+        .kpi-value { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+        .trend-up { color: var(--primary); }
+        .trend-down { color: #f43f5e; }
+        .weekly-chart { width: 100%; height: 120px; }
+        .chart-line { stroke: var(--primary); stroke-width: 2; fill: none; }
+        .chart-area { fill: var(--primary-alpha-08); }
+        .chart-point { fill: #0f172a; stroke: var(--primary); stroke-width: 1.5px; }
+
+        /* Profile Switcher */
+        .profile-switcher {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .profile-switcher:hover {
+            background-color: #334155;
+        }
+
+        /* Toast értesítések */
+        #toast-container {
+            position: fixed;
+            left: 50%;
+            bottom: 5.5rem;
+            transform: translateX(-50%);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: min(92vw, 380px);
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            #toast-container { bottom: 1.5rem; }
+        }
+
+        .toast {
+            pointer-events: auto;
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-left: 4px solid var(--primary);
+            color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            white-space: pre-line;
+            font-size: 0.875rem;
+            cursor: pointer;
+            animation: toast-in 0.2s ease-out;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .toast-error { border-left-color: #f43f5e; }
+        .toast-hide { opacity: 0; transform: translateY(8px); }
+
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        /* Mentés-emlékeztető */
+        .backup-reminder {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            background-color: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #fde68a;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+    </style>
+    <!-- Előre generált Tailwind CSS (a korábbi CDN helyett). Frissítés: node tools/build-tailwind.mjs -->
+    <style id="tailwind-css">
+/* tailwind:start */
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.\!container{width:100%!important}.container{width:100%}@media (min-width:640px){.\!container{max-width:640px!important}.container{max-width:640px}}@media (min-width:768px){.\!container{max-width:768px!important}.container{max-width:768px}}@media (min-width:1024px){.\!container{max-width:1024px!important}.container{max-width:1024px}}@media (min-width:1280px){.\!container{max-width:1280px!important}.container{max-width:1280px}}@media (min-width:1536px){.\!container{max-width:1536px!important}.container{max-width:1536px}}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.bottom-0{bottom:0}.left-0{left:0}.right-0{right:0}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:.25rem}.mb-1\.5{margin-bottom:.375rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.aspect-video{aspect-ratio:16/9}.h-20{height:5rem}.h-full{height:100%}.h-screen{height:100vh}.w-1\/2{width:50%}.w-20{width:5rem}.w-64{width:16rem}.w-full{width:100%}.min-w-0{min-width:0}.max-w-6xl{max-width:72rem}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.items-baseline{align-items:baseline}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:.25rem}.rounded-lg{border-radius:.5rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-r{border-right-width:1px}.border-t{border-top-width:1px}.border-slate-700{--tw-border-opacity:1;border-color:rgb(51 65 85/var(--tw-border-opacity,1))}.bg-emerald-700{--tw-bg-opacity:1;background-color:rgb(4 120 87/var(--tw-bg-opacity,1))}.bg-orange-700{--tw-bg-opacity:1;background-color:rgb(194 65 12/var(--tw-bg-opacity,1))}.bg-red-700{--tw-bg-opacity:1;background-color:rgb(185 28 28/var(--tw-bg-opacity,1))}.bg-red-900{--tw-bg-opacity:1;background-color:rgb(127 29 29/var(--tw-bg-opacity,1))}.bg-slate-700{--tw-bg-opacity:1;background-color:rgb(51 65 85/var(--tw-bg-opacity,1))}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59/var(--tw-bg-opacity,1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42/var(--tw-bg-opacity,1))}.bg-yellow-700{--tw-bg-opacity:1;background-color:rgb(161 98 7/var(--tw-bg-opacity,1))}.object-contain{-o-object-fit:contain;object-fit:contain}.p-1{padding:.25rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-4{padding-left:1rem;padding-right:1rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.pb-20{padding-bottom:5rem}.pl-4{padding-left:1rem}.pt-16{padding-top:4rem}.pt-4{padding-top:1rem}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-6xl{font-size:3.75rem;line-height:1}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.italic{font-style:italic}.leading-relaxed{line-height:1.625}.tracking-wide{letter-spacing:.025em}.text-blue-400{--tw-text-opacity:1;color:rgb(96 165 250/var(--tw-text-opacity,1))}.text-emerald-200{--tw-text-opacity:1;color:rgb(167 243 208/var(--tw-text-opacity,1))}.text-orange-200{--tw-text-opacity:1;color:rgb(254 215 170/var(--tw-text-opacity,1))}.text-red-200{--tw-text-opacity:1;color:rgb(254 202 202/var(--tw-text-opacity,1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240/var(--tw-text-opacity,1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-yellow-200{--tw-text-opacity:1;color:rgb(254 240 138/var(--tw-text-opacity,1))}.outline{outline-style:solid}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.hover\:bg-red-800:hover{--tw-bg-opacity:1;background-color:rgb(153 27 27/var(--tw-bg-opacity,1))}.hover\:bg-slate-600:hover{--tw-bg-opacity:1;background-color:rgb(71 85 105/var(--tw-bg-opacity,1))}@media (min-width:768px){.md\:flex{display:flex}.md\:hidden{display:none}.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:flex-col{flex-direction:column}.md\:items-start{align-items:flex-start}.md\:justify-between{justify-content:space-between}.md\:p-8{padding:2rem}.md\:pb-0{padding-bottom:0}.md\:pt-8{padding-top:2rem}}@media (min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* tailwind:end */
+    </style>
+</head>
+<body>
+    <button id="profile-btn" class="profile-switcher text-primary" onclick="toggleProfile()">
+        <span id="profile-icon">👨</span> <span id="profile-text">Váltás Női Profilra</span>
+    </button>
+
+    <div class="flex h-screen overflow-hidden">
+        <nav id="sidebar-nav" class="hidden md:flex md:flex-col w-64 bg-slate-900 border-r border-slate-700">
+            <div class="p-6 border-b border-slate-700">
+                <h1 class="text-2xl font-bold text-primary">💪 Fitness Tracker</h1>
+            </div>
+            <div class="flex-1 py-4 overflow-y-auto">
+                <div class="nav-btn active" data-view="dashboard">
+                    <div class="text-lg">📊 Dashboard</div>
+                    <div class="text-xs text-slate-400 mt-1">Napi mérleg</div>
+                </div>
+                <div class="nav-btn" data-view="workout">
+                    <div class="text-lg">🏋️ Edzés</div>
+                    <div class="text-xs text-slate-400 mt-1">Naplózás</div>
+                </div>
+                <div class="nav-btn" data-view="calendar">
+                    <div class="text-lg">📅 Naptár</div>
+                    <div class="text-xs text-slate-400 mt-1">Előzmények</div>
+                </div>
+                <div class="nav-btn" data-view="settings">
+                    <div class="text-lg">⚙️ Beállítások</div>
+                    <div class="text-xs text-slate-400 mt-1">Mentés & Sync</div>
+                </div>
+                <div class="nav-btn" data-view="exercises">
+                    <div class="text-lg">💪 Gyakorlatok</div>
+                    <div class="text-xs text-slate-400 mt-1">Gyakorlat könyvtár</div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700">
+                <div class="px-2 py-2">
+                    <div class="text-xs text-slate-400 mb-1.5 font-semibold tracking-wide">HETI GYORSVÁLTÓ</div>
+                    <div id="weekly-ribbon" class="week-ribbon">
+                        </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto pb-20 md:pb-0">
+            <div class="max-w-6xl mx-auto p-4 md:p-8 pt-16 md:pt-8">
+                <div id="view-dashboard" class="view-content">
+                    <h2 class="text-3xl font-bold mb-6 text-primary">Napi Mérleg & Haladás</h2>
+                    
+                    <div class="mb-6 text-slate-400">
+                        <span id="current-date-display"></span>
+                    </div>
+
+                    <div id="backup-reminder" class="backup-reminder hidden">
+                        <span>💾 <span id="backup-reminder-text"></span> Az adatok csak ebben a böngészőben vannak tárolva.</span>
+                        <button class="btn btn-secondary" onclick="exportData()">Exportálás most</button>
+                    </div>
+
+                    <div class="mb-6">
+                        <div class="card kpi-card p-4 flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="text-slate-400 text-sm">Aktuális Heti Átlag</div>
+                                <div class="flex items-center gap-3">
+                                    <div id="weekly-average-display" class="kpi-value">-- kg</div>
+                                    <div id="weekly-trend" class="text-sm text-slate-400"></div>
+                                </div>
+                                <div id="weekly-range-sub" class="text-xs text-slate-500 mt-1">Hét: --</div>
+                            </div>
+                            <div id="weekly-chart-container" class="w-1/2 pl-4">
+                                <svg id="weekly-chart" class="weekly-chart" viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div class="stat-card">
+                            <div class="text-slate-400 text-sm mb-2">Jelenlegi Súly</div>
+                            <div class="text-3xl font-bold text-primary" id="current-weight-display">-- kg</div>
+                            <div class="mt-4 space-y-2">
+                                <input type="number" step="0.1" class="input-field" id="weight-input" placeholder="Súly (kg)">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" step="0.1" class="input-field" id="neck-input" placeholder="Nyak (pl. 38.5 cm)">
+                                    <input type="number" step="0.1" class="input-field" id="waist-input" placeholder="Derék (pl. 88 cm)">
+                                </div>
+                                <div id="hip-container" style="display: none;" class="mt-2">
+                                    <input type="number" step="0.1" class="input-field w-full" id="hip-input" placeholder="Csípő (pl. 95 cm)">
+                                </div>
+                                <button class="btn btn-primary w-full mt-2" onclick="saveWeight()">Súly Rögzítése</button>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="text-slate-400 text-sm mb-2">Folyadékbevitel</div>
+                            <div class="text-3xl font-bold text-blue-400" id="water-display">0 ml</div>
+                            <div class="mt-2 text-sm text-slate-400" id="water-target">Cél: 2500 ml</div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="water-progress" style="width: 0%"></div>
+                            </div>
+                            <div class="flex gap-2 mt-4">
+                                <button class="btn btn-secondary flex-1" onclick="addWater(250)">+250ml</button>
+                                <button class="btn btn-secondary flex-1" onclick="addWater(500)">+500ml</button>
+                            </div>
+                            <button class="btn btn-primary w-full mt-2" onclick="resetWater()">Nullázás</button>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="text-slate-400 text-sm mb-2">Mai Edzés</div>
+                            <div class="text-xl font-semibold mb-2" id="today-workout-name">--</div>
+                            <div class="text-sm text-slate-400 mb-2" id="today-workout-status">Nincs rögzítve</div>
+                            <div class="progress-bar mt-2 mb-4">
+                                <div class="progress-fill" id="workout-progress" style="width: 0%"></div>
+                            </div>
+                            <button class="btn btn-primary w-full" onclick="navigateToView('workout')">Edzés Indítása</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-4 text-primary">Testösszetétel</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="text-slate-400 text-sm mb-1">BMI (Body Mass Index)</div>
+                                <div class="flex items-baseline gap-2">
+                                    <div class="text-2xl font-bold" id="bmi-value">--</div>
+                                    <div class="text-sm px-2 py-1 rounded" id="bmi-status"></div>
+                                </div>
+                                <div class="text-xs text-slate-500 mt-1" id="bmi-height-subtitle">Magasság: 175 cm</div>
+                            </div>
+                            
+                            <div>
+                                <div class="text-slate-400 text-sm mb-1">Testzsírszázalék (%)</div>
+                                <div class="flex items-baseline gap-2">
+                                    <div class="text-2xl font-bold text-primary" id="body-fat-display">--</div>
+                                    <div class="text-xs text-slate-500" id="body-fat-method">(Becsült érték)</div>
+                                </div>
+                                <div class="text-xs text-slate-500 mt-1" id="body-fat-subtitle">Adja meg a méreteket a pontos számításhoz</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-4 text-primary">Összesített Haladás</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <div class="text-slate-400 text-sm mb-1">Kezdősúly</div>
+                                <div class="text-2xl font-bold" id="start-weight">-- kg</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 text-sm mb-1">Célsúly</div>
+                                <div class="text-2xl font-bold text-primary" id="target-weight">70 kg</div>
+                            </div>
+                            <div>
+                                <div class="text-slate-400 text-sm mb-1">Leadott</div>
+                                <div class="text-2xl font-bold text-primary" id="weight-lost">0 kg</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-workout" class="view-content hidden">
+                    <h2 class="text-3xl font-bold mb-6 text-primary">Edzés & Naplózás</h2>
+                    
+                    <div class="mb-6 text-slate-400">
+                        <span id="workout-date-display"></span>
+                    </div>
+
+                    <div id="workout-content">
+                        </div>
+                </div>
+
+                <div id="view-calendar" class="view-content hidden">
+                    <h2 class="text-3xl font-bold mb-6 text-primary">Naptár</h2>
+                    
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-6">
+                            <button class="btn btn-secondary" onclick="changeMonth(-1)">‹ Előző</button>
+                            <h3 class="text-xl font-semibold" id="calendar-month-year"></h3>
+                            <button class="btn btn-secondary" onclick="changeMonth(1)">Következő ›</button>
+                        </div>
+                        <div class="flex justify-center mb-6">
+                            <button class="btn btn-primary" onclick="goToToday()">📍 Ma</button>
+                        </div>
+
+                        <div class="calendar-grid mb-4">
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">H</div>
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">K</div>
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">Sz</div>
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">Cs</div>
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">P</div>
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">Sz</div>
+                            <div class="text-center text-slate-400 text-sm font-semibold py-2">V</div>
+                        </div>
+
+                        <div class="calendar-grid" id="calendar-days">
+                            </div>
+                    </div>
+                </div>
+
+                <div id="view-settings" class="view-content hidden">
+                    <h2 class="text-3xl font-bold mb-6 text-primary">Beállítások & Mentés</h2>
+                    
+                    <div class="card mb-6">
+                        <h3 class="text-xl font-semibold mb-4">Felhasználói Profil</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Magasság (cm):</label>
+                                <input type="number" class="input-field" id="height-input" value="175">
+                            </div>
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Célsúly (kg):</label>
+                                <input type="number" step="0.1" class="input-field" id="target-weight-input" value="70">
+                            </div>
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Életkor (év):</label>
+                                <input type="number" class="input-field" id="age-input" value="30">
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-4" onclick="saveUserProfile()">Profil Mentése</button>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="text-xl font-semibold mb-4">Adatkezelés & Szinkronizáció</h3>
+                        <p class="text-sm text-slate-400 mb-4" id="db-indicator">Jelenlegi Adatbázis: Férfi (fitness_tracker_db)</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <button class="btn btn-secondary w-full" onclick="exportData()">
+                                    💾 Adatbázis Exportálása
+                                </button>
+                                <p class="text-sm text-slate-400 mt-2">
+                                    Letölti az összes edzés- és súlyadatot JSON formátumban.
+                                </p>
+                                <p class="text-xs text-slate-500 mt-1" id="last-export-info"></p>
+                            </div>
+                            <div>
+                                <label class="btn btn-secondary w-full cursor-pointer block text-center">
+                                    📤 Adatbázis Importálása
+                                    <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(event)">
+                                </label>
+                                <p class="text-sm text-slate-400 mt-2">
+                                    Feltölt és összefésül egy korábban exportált JSON fájlt.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-700">
+                                <label class="btn btn-secondary w-full cursor-pointer block text-center">
+                                    📅 Heti Edzésterv Importálása
+                                    <input type="file" id="import-weekly-program" accept=".json" class="hidden" onchange="importWeeklyProgram(event)">
+                                </label>
+                                <p class="text-sm text-slate-400 mt-2">
+                                    Töltsd fel a külsőleg kapott heti edzéstervet (pl. 2026-W23.json).
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-700">
+                                <button class="btn bg-red-900 hover:bg-red-800 text-white w-full" onclick="clearAllData()">
+                                    🗑️ Összes Adat Törlése
+                                </button>
+                                <p class="text-sm text-slate-400 mt-2">
+                                    FIGYELEM: Ez véglegesen törli az aktív profil összes adatát!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-exercises" class="view-content hidden">
+                    <h2 class="text-3xl font-bold mb-6 text-primary">Gyakorlat Könyvtár</h2>
+                    <p class="text-slate-400 mb-8" id="exercise-library-subtitle">12 hónapos átformálási program gyakorlatai</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="exercise-library-grid">
+                        </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <nav id="bottom-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 flex">
+        <div class="nav-btn active" data-view="dashboard">📊<br><span class="text-xs">Dashboard</span></div>
+        <div class="nav-btn" data-view="workout">🏋️<br><span class="text-xs">Edzés</span></div>
+        <div class="nav-btn" data-view="calendar">📅<br><span class="text-xs">Naptár</span></div>
+        <div class="nav-btn" data-view="settings">⚙️<br><span class="text-xs">Beállítások</span></div>
+        <div class="nav-btn" data-view="exercises">💪<br><span class="text-xs">Gyakorlatok</span></div>
+    </nav>
+
+    <div id="toast-container" aria-live="polite"></div>
+
+    <script>
+        // ============================================================================
+        // DATA STRUCTURE & STATE MANAGEMENT
+        // ============================================================================
+
+        let currentProfile = 'male'; // 'male' or 'female'
+        const STORAGE_KEYS = {
+            male: 'fitness_tracker_db',
+            female: 'fitness_tracker_db_female'
+        };
+
+        let appState = {
+            currentDate: new Date(),
+            calendarDate: new Date(),
+            data: {}
+        };
+
+        function getInitialState() {
+            return {
+                user_info: {
+                    gender: currentProfile,
+                    height_cm: currentProfile === 'female' ? 169 : 175,
+                    target_weight_kg: currentProfile === 'female' ? 60 : 70,
+                    age: currentProfile === 'female' ? 23 : 30
+                },
+                weekly_programs: {},
+                daily_logs: {},
+                workout_logs: {}
+            };
+        }
+
+        // ============================================================================
+        // PROFILE SWITCHER
+        // ============================================================================
+
+        function toggleProfile() {
+            // Save current data before switching
+            saveData();
+            
+            // Toggle
+            if (currentProfile === 'male') {
+                currentProfile = 'female';
+                document.body.classList.add('theme-female');
+                document.getElementById('profile-icon').textContent = '👩';
+                document.getElementById('profile-text').textContent = 'Vissza Férfi Profilra';
+            } else {
+                currentProfile = 'male';
+                document.body.classList.remove('theme-female');
+                document.getElementById('profile-icon').textContent = '👨';
+                document.getElementById('profile-text').textContent = 'Váltás Női Profilra';
+            }
+            
+            // Load new profile data and re-render
+            loadData();
+            
+            // Re-render all views
+            renderDashboard();
+            renderCalendar();
+            renderWorkout();
+            renderSettings();
+            renderWeeklyRibbon();
+            renderExerciseLibrary();
+        }
+
+        // ============================================================================
+        // UTILITY FUNCTIONS
+        // ============================================================================
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateHungarian(date) {
+            const days = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat'];
+            const months = ['Január', 'Február', 'Március', 'Április', 'Május', 'Június', 
+                          'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December'];
+            return `${date.getFullYear()}. ${months[date.getMonth()]} ${date.getDate()}. (${days[date.getDay()]})`;
+        }
+
+        function getISOWeekString(date) {
+            const target = new Date(date.valueOf());
+            const dayNr = (date.getDay() + 6) % 7;
+            target.setDate(target.getDate() - dayNr + 3);
+            const firstThursday = target.valueOf();
+            target.setMonth(0, 1);
+            if (target.getDay() !== 4) {
+                target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+            }
+            const weekNumber = 1 + Math.ceil((firstThursday - target) / 604800000);
+            const year = target.getFullYear();
+            return `${year}-W${String(weekNumber).padStart(2, '0')}`;
+        }
+
+        function getDayOfWeek(date) {
+            return date.getDay();
+        }
+
+        // Az adott dátumhoz tartozó heti terv és napi program.
+        // Hétvégén csak akkor pihenőnap, ha a terv nem ad meg edzést ("6" = szombat, "7" vagy "0" = vasárnap).
+        function getProgramForDate(date) {
+            const weekId = getISOWeekString(date);
+            const weeklyProgram = appState.data.weekly_programs[weekId];
+            const dayOfWeek = getDayOfWeek(date);
+            const dayKeys = dayOfWeek === 0 ? ['7', '0'] : [String(dayOfWeek)];
+            const days = weeklyProgram && weeklyProgram.program;
+            const program = days ? (dayKeys.map(key => days[key]).find(Boolean) || null) : null;
+            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            return { weekId, weeklyProgram, program, isRestDay: isWeekend && !program };
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            const dismiss = () => {
+                toast.classList.add('toast-hide');
+                setTimeout(() => toast.remove(), 300);
+            };
+            toast.addEventListener('click', dismiss);
+            container.appendChild(toast);
+            setTimeout(dismiss, type === 'error' ? 6000 : 3500);
+        }
+
+        function hasExerciseData(ex) {
+            return !!ex && (ex.completed === true || ex.rpe != null || !!(ex.comment && ex.comment.trim()));
+        }
+
+        function hasCardioData(cardio) {
+            return !!cardio && (!!cardio.distance_km || !!cardio.duration_minutes || !!(cardio.notes && cardio.notes.trim()));
+        }
+
+        function isEmptyDailyLog(log) {
+            return !log || (!log.weight_kg && !log.water_ml && !log.body_fat_pct && !log.neck_cm &&
+                            !log.waist_cm && !log.hip_cm && !(log.notes && log.notes.trim()));
+        }
+
+        function isEmptyWorkoutLog(log) {
+            return !log || (!(log.exercises || []).some(hasExerciseData) &&
+                            !hasCardioData(log.extra_cardio) &&
+                            !(log.archived_exercises || []).length);
+        }
+
+        // A korábbi verzió minden megnézett naphoz üres naplót hozott létre – ezeket kitakarítjuk.
+        function pruneEmptyLogs(data) {
+            for (const dateStr of Object.keys(data.daily_logs)) {
+                if (isEmptyDailyLog(data.daily_logs[dateStr])) delete data.daily_logs[dateStr];
+            }
+            for (const dateStr of Object.keys(data.workout_logs)) {
+                if (isEmptyWorkoutLog(data.workout_logs[dateStr])) delete data.workout_logs[dateStr];
+            }
+        }
+
+        function calculateBMI(weightKg, heightCm) {
+            const heightM = heightCm / 100;
+            return (weightKg / (heightM * heightM)).toFixed(1);
+        }
+
+        function getBMIStatus(bmi) {
+            const value = parseFloat(bmi);
+            if (value < 18.5) return { label: 'Alulsúly', color: 'bg-yellow-700 text-yellow-200' };
+            if (value < 25) return { label: 'Normál testsúly', color: 'bg-emerald-700 text-emerald-200' }; /* Keeps emerald for standard health indicators */
+            if (value < 30) return { label: 'Enyhe túlsúly', color: 'bg-orange-700 text-orange-200' };
+            return { label: 'Jelentős túlsúly', color: 'bg-red-700 text-red-200' };
+        }
+
+        function calculateBodyFatBMI(bmi, age, gender) {
+            const bmiFloat = parseFloat(bmi);
+            if (gender === 'female') {
+                // (1.20 × BMI) + (0.23 × Age) - 5.4
+                const bodyFat = (1.20 * bmiFloat) + (0.23 * age) - 5.4;
+                return Math.max(0, parseFloat(bodyFat.toFixed(1)));
+            } else {
+                // (1.20 × BMI) + (0.23 × Age) - 16.2
+                const bodyFat = (1.20 * bmiFloat) + (0.23 * age) - 16.2;
+                return Math.max(0, parseFloat(bodyFat.toFixed(1)));
+            }
+        }
+
+        function calculateBodyFatNavy(waist, neck, height, hip = null, gender = 'male') {
+            try {
+                const w = parseFloat(waist);
+                const n = parseFloat(neck);
+                const h = parseFloat(height);
+                
+                if (gender === 'female') {
+                    const hp = parseFloat(hip);
+                    if (!w || !n || !h || !hp || w + hp <= n) return null;
+                    // Női U.S. Navy formula
+                    const denominator = 1.29579 - 0.35004 * Math.log10(w + hp - n) + 0.22100 * Math.log10(h);
+                    const bodyFat = (495 / denominator) - 450;
+                    return Math.max(0, parseFloat(bodyFat.toFixed(1)));
+                } else {
+                    if (!w || !n || !h || w <= n) return null;
+                    // Férfi U.S. Navy formula
+                    const denominator = 1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h);
+                    const bodyFat = (495 / denominator) - 450;
+                    return Math.max(0, parseFloat(bodyFat.toFixed(1)));
+                }
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // ============================================================================
+        // WEEKLY KPI + CHART
+        // ============================================================================
+        
+        function getWeekIdForDate(date) {
+            return getISOWeekString(date);
+        }
+
+        function getWeightsForWeek(weekId) {
+            const weights = [];
+            for (const dateStr in appState.data.daily_logs) {
+                const log = appState.data.daily_logs[dateStr];
+                if (!log) continue;
+                if (log.weight_kg == null) continue;
+                const d = new Date(dateStr);
+                if (getISOWeekString(d) === weekId) {
+                    weights.push({ date: dateStr, weight: parseFloat(log.weight_kg) });
+                }
+            }
+            weights.sort((a,b) => a.date.localeCompare(b.date));
+            return weights;
+        }
+
+        function computeWeeklyAverage(weekId) {
+            const entries = getWeightsForWeek(weekId);
+            if (!entries.length) return null;
+            const sum = entries.reduce((s,e) => s + e.weight, 0);
+            const avg = sum / entries.length;
+            return parseFloat(avg.toFixed(2));
+        }
+
+        function computePreviousWeekId(weekId) {
+            const parts = weekId.split('-W');
+            const year = parseInt(parts[0],10);
+            const week = parseInt(parts[1],10);
+            const jan4 = new Date(year,0,4);
+            const dayOfWeek = jan4.getDay() || 7; 
+            const mondayOfWeek1 = new Date(jan4);
+            mondayOfWeek1.setDate(jan4.getDate() - (dayOfWeek - 1));
+            const targetMonday = new Date(mondayOfWeek1);
+            targetMonday.setDate(mondayOfWeek1.getDate() + (week - 1) * 7 - 7); 
+            return getISOWeekString(targetMonday);
+        }
+
+        function renderWeeklyKPI() {
+            const weekId = getISOWeekString(appState.currentDate);
+            const avg = computeWeeklyAverage(weekId);
+            const el = document.getElementById('weekly-average-display');
+            const trendEl = document.getElementById('weekly-trend');
+            const subEl = document.getElementById('weekly-range-sub');
+            subEl.textContent = `Hét: ${weekId}`;
+            
+            if (avg === null) {
+                el.textContent = '-- kg';
+                trendEl.textContent = '';
+                return;
+            }
+            el.textContent = `${avg} kg`;
+
+            const prevWeekId = computePreviousWeekId(weekId);
+            const prevAvg = computeWeeklyAverage(prevWeekId);
+            if (prevAvg === null) {
+                trendEl.innerHTML = `<span class="text-slate-400">Nincs előző heti adat</span>`;
+            } else {
+                const diff = parseFloat((avg - prevAvg).toFixed(2));
+                const abs = Math.abs(diff).toFixed(2);
+                if (diff < 0) {
+                    trendEl.innerHTML = `<span class="trend-up">&#9660; ${abs} kg</span>`;
+                } else if (diff > 0) {
+                    trendEl.innerHTML = `<span class="trend-down">&#9650; ${abs} kg</span>`;
+                } else {
+                    trendEl.innerHTML = `<span class="text-slate-400">±0.00 kg</span>`;
+                }
+            }
+        }
+
+        function drawWeeklyChart() {
+            const svg = document.getElementById('weekly-chart');
+            if (!svg) return;
+            const weekId = getISOWeekString(appState.currentDate);
+            const entries = getWeightsForWeek(weekId);
+            const labels = ['H','K','Sz','Cs','P','Sz','V'];
+            const weekStart = getWeekStartDate(appState.currentDate);
+            
+            const points = [];
+            for (let i=0;i<7;i++){
+                const d = new Date(weekStart);
+                d.setDate(d.getDate()+i);
+                const ds = formatDate(d);
+                const found = entries.find(e=>e.date===ds);
+                points.push(found ? found.weight : null);
+            }
+
+            const width = 400, height = 120, padding = 30;
+            svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+            while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+            const valid = points.filter(p=>p!=null);
+            if (!valid.length) {
+                const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+                text.setAttribute('x', width/2);
+                text.setAttribute('y', height/2);
+                text.setAttribute('fill','#94a3b8');
+                text.setAttribute('text-anchor','middle');
+                text.setAttribute('font-size','12');
+                text.textContent = 'Nincs súlyadat erre a hétre';
+                svg.appendChild(text);
+                return;
+            }
+
+            const minW = Math.min(...valid);
+            const maxW = Math.max(...valid);
+            const yMin = Math.floor(minW - 2);
+            const yMax = Math.ceil(maxW + 2);
+            const xStep = (width - padding*2) / 6;
+            
+            const scaleY = v => {
+                if (yMax === yMin) return height/2;
+                const t = (v - yMin) / (yMax - yMin);
+                return height - padding - t * (height - padding*2);
+            };
+
+            labels.forEach((lab,i)=>{
+                const tx = padding + i * xStep;
+                const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+                text.setAttribute('x', tx);
+                text.setAttribute('y', height - 6);
+                text.setAttribute('fill','#94a3b8');
+                text.setAttribute('font-size','10');
+                text.setAttribute('text-anchor','middle');
+                text.textContent = lab;
+                svg.appendChild(text);
+            });
+
+            let pathD = '';
+            let prevX=null, prevY=null;
+            points.forEach((p,i)=>{
+                const x = padding + i * xStep;
+                if (p==null) { prevX=null; prevY=null; return; }
+                const y = scaleY(p);
+                if (prevX===null) {
+                    pathD += `M ${x} ${y} `;
+                } else {
+                    pathD += `L ${x} ${y} `;
+                }
+                prevX = x; prevY = y;
+            });
+
+            if (pathD) {
+                const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+                path.setAttribute('d', pathD);
+                path.setAttribute('class','chart-line');
+                path.setAttribute('stroke-linecap','round');
+                svg.appendChild(path);
+            }
+
+            points.forEach((p,i)=>{
+                if (p==null) return;
+                const x = padding + i * xStep;
+                const y = scaleY(p);
+                const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+                c.setAttribute('cx', x);
+                c.setAttribute('cy', y);
+                c.setAttribute('r', 4);
+                c.setAttribute('class','chart-point');
+                svg.appendChild(c);
+            });
+
+            const avg = computeWeeklyAverage(weekId);
+            if (avg !== null) {
+                const yAvg = scaleY(avg);
+                const ref = document.createElementNS('http://www.w3.org/2000/svg','line');
+                ref.setAttribute('x1', padding - 6);
+                ref.setAttribute('x2', width - padding + 6);
+                ref.setAttribute('y1', yAvg);
+                ref.setAttribute('y2', yAvg);
+                ref.setAttribute('stroke', '#94a3b8');
+                ref.setAttribute('stroke-dasharray','4 4');
+                ref.setAttribute('stroke-width','1');
+                svg.appendChild(ref);
+                
+                const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+                lbl.setAttribute('x', width - padding + 4);
+                lbl.setAttribute('y', yAvg - 4);
+                lbl.setAttribute('fill','#94a3b8');
+                lbl.setAttribute('font-size','10');
+                lbl.textContent = `${avg} kg`;
+                svg.appendChild(lbl);
+            }
+        }
+
+        function getExerciseImagePath(exerciseName) {
+            const imageMap = {
+                'Standard Push-up': 'assets/img/push-up.png',
+                'Incline Push-up': 'assets/img/incline-push-up.png',
+                'Incline Push-up or Dolphin Plank': 'assets/img/incline-push-up.png',
+                'Standard Plank': 'assets/img/plank.png',
+                'Plank to Failure': 'assets/img/plank.png',
+                'Prone Cobra': 'assets/img/prone-cobra.png',
+                'Standard Sit-up': 'assets/img/sit-up.png',
+                'Air Squat': 'assets/img/squat.png',
+                'Walking Lunge': 'assets/img/lunge.png',
+                'Reverse Lunge': 'assets/img/lunge.png',
+                'Standing Calf Raise': 'assets/img/calf-raise.png',
+                'Plank Hip Dips': 'assets/img/plank-dips.png',
+                'Dolphin Plank': 'assets/img/dolphin-plank.png',
+                'Lying Leg Raise': 'assets/img/leg-raise.png',
+                'Superman Hold': 'assets/img/superman.png',
+                'High Knees': 'assets/img/high-knees.png',
+                'Russian Twist': 'assets/img/russian-twist.png',
+                'Squat to Cross-Body Knee Drive': 'assets/img/squat-knee-drive.png',
+                // Mappings for új gyakorlatok
+                'Állványos mély fekvőtámasz': 'assets/img/incline-push-up.png',
+                'Állványos Dolphin Plank or Push-up': 'assets/img/dolphin-plank.png',
+                'Gumiszalagos evezés ülve': 'assets/img/Gumiszalagos evezés ülve.png',
+                'Gumiszalagos bicepsz hajlítás': 'assets/img/Gumiszalagos bicepsz hajlítás.png',
+                'Gumiszalagos húzás mellhez (Pull-Apart)': 'assets/img/Gumiszalagos húzás mellhez.png'
+            };
+            
+            return imageMap[exerciseName] || 'assets/img/push-up.png';
+        }
+
+        function getExerciseImageHTML(exerciseName, size = '80') {
+            const imagePath = getExerciseImagePath(exerciseName);
+            const initials = exerciseName.split(' ').filter(word => word.length > 0).slice(0, 2).map(word => word[0].toUpperCase()).join('');
+            const fallbackId = 'fallback-' + Math.random().toString(36).substr(2, 9);
+            
+            return `
+                <img src="${imagePath}" 
+                     alt="${exerciseName}" 
+                     class="w-full h-full object-contain"
+                     onerror="this.style.display='none'; document.getElementById('${fallbackId}').style.display='flex';"
+                     style="display: block;">
+                <div id="${fallbackId}" 
+                     class="w-full h-full bg-slate-900 rounded flex items-center justify-center"
+                     style="display: none;">
+                    <span class="text-primary font-bold text-2xl">${initials}</span>
+                </div>
+            `;
+        }
+
+        // ============================================================================
+        // LOCALSTORAGE MANAGEMENT
+        // ============================================================================
+
+        function loadData() {
+            const storageKey = STORAGE_KEYS[currentProfile];
+            const stored = localStorage.getItem(storageKey);
+            
+            if (stored) {
+                try {
+                    const loadedData = JSON.parse(stored);
+                    appState.data = loadedData;
+                    
+                    // Migrations
+                    if (!appState.data.weekly_programs) appState.data.weekly_programs = {};
+                    if (!appState.data.daily_logs) appState.data.daily_logs = {};
+                    if (!appState.data.workout_logs) appState.data.workout_logs = {};
+                    if (!appState.data.user_info) appState.data.user_info = getInitialState().user_info;
+                    
+                    // Force the gender flag to match current profile if it's missing or wrong
+                    appState.data.user_info.gender = currentProfile;
+                    if(!appState.data.user_info.age) appState.data.user_info.age = currentProfile === 'female' ? 23 : 30;
+
+                    pruneEmptyLogs(appState.data);
+
+                } catch (e) {
+                    console.error('Error loading data:', e);
+                    appState.data = getInitialState();
+                }
+            } else {
+                appState.data = getInitialState();
+            }
+        }
+
+        function saveData() {
+            const storageKey = STORAGE_KEYS[currentProfile];
+            localStorage.setItem(storageKey, JSON.stringify(appState.data));
+        }
+
+        function ensureDailyLog(dateStr) {
+            if (!appState.data.daily_logs[dateStr]) {
+                appState.data.daily_logs[dateStr] = {
+                    weight_kg: null,
+                    water_ml: 0,
+                    body_fat_pct: null,
+                    neck_cm: null,
+                    waist_cm: null,
+                    hip_cm: null, // Új mező a női profilhoz
+                    notes: ""
+                };
+            }
+            return appState.data.daily_logs[dateStr];
+        }
+
+        // ============================================================================
+        // DASHBOARD VIEW
+        // ============================================================================
+
+        function renderDashboard() {
+            const dateStr = formatDate(appState.currentDate);
+            const dailyLog = appState.data.daily_logs[dateStr] || {};
+            const userInfo = appState.data.user_info;
+
+            document.getElementById('current-date-display').textContent = formatDateHungarian(appState.currentDate);
+            renderBackupReminder();
+
+            // Női profilnál jelenjen meg a csípő input
+            if (currentProfile === 'female') {
+                document.getElementById('hip-container').style.display = 'block';
+                document.getElementById('hip-input').value = dailyLog.hip_cm || '';
+            } else {
+                document.getElementById('hip-container').style.display = 'none';
+            }
+
+            const currentWeight = dailyLog.weight_kg;
+            const currentNeck = dailyLog.neck_cm;
+            const currentWaist = dailyLog.waist_cm;
+            const currentHip = dailyLog.hip_cm;
+            
+            document.getElementById('current-weight-display').textContent = currentWeight ? `${currentWeight} kg` : '-- kg';
+            document.getElementById('weight-input').value = currentWeight || '';
+            document.getElementById('neck-input').value = currentNeck || '';
+            document.getElementById('waist-input').value = currentWaist || '';
+
+            document.getElementById('bmi-height-subtitle').textContent = `Magasság: ${userInfo.height_cm} cm | Kor: ${userInfo.age} év`;
+
+            if (currentWeight) {
+                const bmi = calculateBMI(currentWeight, userInfo.height_cm);
+                const status = getBMIStatus(bmi);
+                document.getElementById('bmi-value').textContent = bmi;
+                document.getElementById('bmi-status').textContent = status.label;
+                document.getElementById('bmi-status').className = `text-sm px-2 py-1 rounded ${status.color}`;
+                
+                let bodyFat = null;
+                let method = '';
+                let subtitle = '';
+                
+                if (currentProfile === 'female') {
+                    if (currentNeck && currentWaist && currentHip) {
+                        bodyFat = calculateBodyFatNavy(currentWaist, currentNeck, userInfo.height_cm, currentHip, 'female');
+                        if (bodyFat !== null) {
+                            method = '(U.S. Navy módszer)';
+                            subtitle = `Nyak: ${currentNeck} cm, Derék: ${currentWaist} cm, Csípő: ${currentHip} cm`;
+                        }
+                    }
+                } else {
+                    if (currentNeck && currentWaist) {
+                        bodyFat = calculateBodyFatNavy(currentWaist, currentNeck, userInfo.height_cm, null, 'male');
+                        if (bodyFat !== null) {
+                            method = '(U.S. Navy módszer)';
+                            subtitle = `Nyak: ${currentNeck} cm, Derék: ${currentWaist} cm`;
+                        }
+                    }
+                }
+                
+                if (bodyFat === null) {
+                    bodyFat = calculateBodyFatBMI(bmi, userInfo.age, userInfo.gender);
+                    method = '(BMI alapú becslés)';
+                    subtitle = currentProfile === 'female' 
+                        ? 'Adja meg a nyak-, derék- és csípőméretét a pontos számításhoz'
+                        : 'Adja meg a nyak- és derékméretét a pontos számításhoz';
+                }
+                
+                document.getElementById('body-fat-display').textContent = `${bodyFat}%`;
+                document.getElementById('body-fat-method').textContent = method;
+                document.getElementById('body-fat-subtitle').textContent = subtitle;
+            } else {
+                document.getElementById('bmi-value').textContent = '--';
+                document.getElementById('bmi-status').textContent = '';
+                document.getElementById('bmi-status').className = 'text-sm px-2 py-1 rounded';
+                document.getElementById('body-fat-display').textContent = '--';
+                document.getElementById('body-fat-method').textContent = '(Becsült érték)';
+                document.getElementById('body-fat-subtitle').textContent = 'Adja meg a súlyt az induláshoz';
+            }
+
+            const waterMl = dailyLog.water_ml || 0;
+            const waterTarget = 2500;
+            document.getElementById('water-display').textContent = `${waterMl} ml`;
+            const waterPercent = Math.min((waterMl / waterTarget) * 100, 100);
+            document.getElementById('water-progress').style.width = `${waterPercent}%`;
+
+            try {
+                renderWeeklyKPI();
+                drawWeeklyChart();
+            } catch (e) {
+                console.error('Weekly KPI render error', e);
+            }
+
+            const workoutLog = appState.data.workout_logs[dateStr];
+            const { program, isRestDay } = getProgramForDate(appState.currentDate);
+
+            if (isRestDay) {
+                document.getElementById('today-workout-name').textContent = 'Pihenőnap';
+                document.getElementById('today-workout-status').textContent = 'Utazás & Regeneráció';
+                document.getElementById('workout-progress').style.width = '100%';
+            } else if (!program) {
+                document.getElementById('today-workout-name').textContent = 'Nincs betöltött edzésterv';
+                document.getElementById('today-workout-status').textContent = `Kattints az importáláshoz`;
+                document.getElementById('workout-progress').style.width = '0%';
+            } else {
+                document.getElementById('today-workout-name').textContent = program.name;
+                
+                if (workoutLog && workoutLog.exercises) {
+                    const completedCount = workoutLog.exercises.filter(ex => {
+                        return typeof ex.completed === 'boolean' ? ex.completed : false;
+                    }).length;
+                    const totalCount = workoutLog.exercises.length;
+                    const percent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+                    
+                    let statusText = `${completedCount}/${totalCount} gyakorlat`;
+                    if (workoutLog.extra_cardio && workoutLog.extra_cardio.distance_km) {
+                        statusText += ` + ${workoutLog.extra_cardio.distance_km}km futás`;
+                    }
+                    
+                    document.getElementById('today-workout-status').textContent = statusText;
+                    document.getElementById('workout-progress').style.width = `${percent}%`;
+                } else {
+                    document.getElementById('today-workout-status').textContent = 'Nincs rögzítve';
+                    document.getElementById('workout-progress').style.width = '0%';
+                }
+            }
+
+            const allWeights = Object.keys(appState.data.daily_logs)
+                .filter(key => appState.data.daily_logs[key].weight_kg)
+                .map(key => ({
+                    date: key,
+                    weight: appState.data.daily_logs[key].weight_kg
+                }))
+                .sort((a, b) => a.date.localeCompare(b.date));
+
+            if (allWeights.length > 0) {
+                const startWeight = allWeights[0].weight;
+                const latestWeight = allWeights[allWeights.length - 1].weight;
+                const weightLost = startWeight - latestWeight;
+
+                document.getElementById('start-weight').textContent = `${startWeight} kg`;
+                document.getElementById('weight-lost').textContent = 
+                    `${weightLost >= 0 ? '-' : '+'}${Math.abs(weightLost).toFixed(1)} kg`;
+            } else {
+                document.getElementById('start-weight').textContent = '-- kg';
+                document.getElementById('weight-lost').textContent = '0 kg';
+            }
+
+            document.getElementById('target-weight').textContent = `${userInfo.target_weight_kg} kg`;
+        }
+
+        function saveWeight() {
+            const weight = parseFloat(document.getElementById('weight-input').value);
+            const neck = document.getElementById('neck-input').value ? parseFloat(document.getElementById('neck-input').value) : null;
+            const waist = document.getElementById('waist-input').value ? parseFloat(document.getElementById('waist-input').value) : null;
+            const hip = document.getElementById('hip-input').value ? parseFloat(document.getElementById('hip-input').value) : null;
+            
+            if (!weight || weight <= 0) {
+                showToast('Kérlek adj meg egy érvényes súlyt!', 'error');
+                return;
+            }
+
+            const dateStr = formatDate(appState.currentDate);
+            const dailyLog = ensureDailyLog(dateStr);
+            const userInfo = appState.data.user_info;
+
+            dailyLog.weight_kg = weight;
+            dailyLog.neck_cm = neck;
+            dailyLog.waist_cm = waist;
+            if(currentProfile === 'female') dailyLog.hip_cm = hip;
+            
+            let bodyFat = null;
+            let method = '';
+            
+            if (currentProfile === 'female') {
+                if (neck && waist && hip) {
+                    bodyFat = calculateBodyFatNavy(waist, neck, userInfo.height_cm, hip, 'female');
+                    method = 'U.S. Navy módszerrel';
+                }
+            } else {
+                if (neck && waist) {
+                    bodyFat = calculateBodyFatNavy(waist, neck, userInfo.height_cm, null, 'male');
+                    method = 'U.S. Navy módszerrel';
+                }
+            }
+            
+            if (bodyFat === null) {
+                const bmi = calculateBMI(weight, userInfo.height_cm);
+                bodyFat = calculateBodyFatBMI(bmi, userInfo.age, currentProfile);
+                method = 'BMI alapú becsléssel';
+            }
+            
+            dailyLog.body_fat_pct = bodyFat;
+            
+            saveData();
+            renderDashboard();
+            renderWeeklyRibbon();
+            
+            showToast(`Súly sikeresen rögzítve!\nTestzsírszázalék: ${bodyFat}% (${method})`);
+        }
+
+        function addWater(amount) {
+            const dateStr = formatDate(appState.currentDate);
+            const dailyLog = ensureDailyLog(dateStr);
+            dailyLog.water_ml = (dailyLog.water_ml || 0) + amount;
+            saveData();
+            renderDashboard();
+            renderWeeklyRibbon();
+        }
+
+        function resetWater() {
+            const dateStr = formatDate(appState.currentDate);
+            const dailyLog = ensureDailyLog(dateStr);
+            dailyLog.water_ml = 0;
+            saveData();
+            renderDashboard();
+            renderWeeklyRibbon();
+        }
+
+        // ============================================================================
+        // WORKOUT VIEW
+        // ============================================================================
+
+        // Új napló a programból; ha volt korábbi napló, a gyakorlatok adatai név szerint átkerülnek,
+        // a programból kikerült (de kitöltött) gyakorlatok pedig az archived_exercises listába.
+        function buildWorkoutLog(program, oldLog) {
+            const remaining = oldLog && Array.isArray(oldLog.exercises) ? [...oldLog.exercises] : [];
+            const exercises = program.exercises.map(ex => {
+                const idx = remaining.findIndex(old => old && old.name === ex.name);
+                const prev = idx >= 0 ? remaining.splice(idx, 1)[0] : null;
+                return {
+                    name: ex.name,
+                    target: ex.target,
+                    completed: prev ? prev.completed === true : false,
+                    rpe: prev && prev.rpe != null ? prev.rpe : null,
+                    comment: prev && prev.comment ? prev.comment : ""
+                };
+            });
+
+            const log = {
+                workout_type: program.name,
+                completed_circuits: (oldLog && oldLog.completed_circuits) || 0,
+                exercises,
+                extra_cardio: (oldLog && oldLog.extra_cardio) || { distance_km: null, duration_minutes: null, notes: "" }
+            };
+            const archived = [...((oldLog && oldLog.archived_exercises) || []), ...remaining.filter(hasExerciseData)];
+            if (archived.length) log.archived_exercises = archived;
+            return log;
+        }
+
+        // A megjelenített napló csak az első módosításkor kerül be az adatbázisba (ne legyenek üres naplók).
+        function getEditableWorkoutLog() {
+            const { dateStr, log } = appState.activeWorkout;
+            if (!appState.data.workout_logs[dateStr]) appState.data.workout_logs[dateStr] = log;
+            return appState.data.workout_logs[dateStr];
+        }
+
+        function renderWorkout() {
+            const dateStr = formatDate(appState.currentDate);
+            const container = document.getElementById('workout-content');
+            const { weekId, program, isRestDay } = getProgramForDate(appState.currentDate);
+
+            document.getElementById('workout-date-display').textContent = formatDateHungarian(appState.currentDate);
+
+            if (isRestDay) {
+                container.innerHTML = `
+                    <div class="rest-day-banner">
+                        <h3 class="text-3xl font-bold mb-4 text-white">🌴 Pihenőnap</h3>
+                        <p class="text-xl text-slate-200">Utazás & Regeneráció</p>
+                        <p class="text-slate-300 mt-4">Erre a hétvégi napra nincs edzés a tervben. Aktív regeneráció, kirándulás.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!program) {
+                container.innerHTML = `
+                    <div class="card border border-slate-700 bg-slate-800">
+                        <div class="text-center mb-6">
+                            <div class="text-6xl mb-4">👋</div>
+                            <h3 class="text-3xl font-bold mb-2 text-primary">Üdvözöllek!</h3>
+                        </div>
+                        <p class="text-lg mb-4 text-slate-200">
+                            Még nincs edzésterv betöltve erre a hétre.
+                        </p>
+                        <div class="bg-slate-900 p-4 rounded-lg mb-6">
+                            <p class="text-sm text-slate-300 mb-2">
+                                <strong class="text-primary">📅 Aktuális hét:</strong> ${weekId}
+                            </p>
+                            <p class="text-sm text-slate-400">
+                                Kérlek, menj a <strong>Beállítások</strong> menübe, és importáld a heti JSON fájlt az elinduláshoz!
+                            </p>
+                        </div>
+                        <button class="btn btn-primary w-full text-lg py-3" onclick="navigateToView('settings')">
+                            ⚙️ Beállításokhoz
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const storedLog = appState.data.workout_logs[dateStr];
+            let workoutLog = storedLog;
+
+            const isStaleWorkoutLog = (log, program) => {
+                if (!log) return true;
+                if (log.workout_type !== program.name) return true;
+                if (!Array.isArray(log.exercises)) return true;
+                if (log.exercises.length !== program.exercises.length) return true;
+                return log.exercises.some((ex, idx) => ex.name !== program.exercises[idx].name ||
+                                                       ex.target !== program.exercises[idx].target);
+            };
+
+            if (isStaleWorkoutLog(storedLog, program)) {
+                workoutLog = buildWorkoutLog(program, storedLog);
+                if (storedLog) {
+                    appState.data.workout_logs[dateStr] = workoutLog;
+                    saveData();
+                }
+            }
+            appState.activeWorkout = { dateStr, log: workoutLog };
+
+            let html = `
+                <div class="card mb-6">
+                    <h3 class="text-2xl font-bold text-primary mb-2">${program.name}</h3>
+                    <p class="text-slate-400">Körök száma: ${program.circuits}</p>
+                </div>
+            `;
+
+            workoutLog.exercises.forEach((exercise, exIdx) => {
+                const isCompleted = typeof exercise.completed === 'boolean' ? exercise.completed : false;
+                const imageHTML = getExerciseImageHTML(exercise.name, '80');
+                
+                html += `
+                    <div class="exercise-item">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+                            <div class="flex items-start gap-4 flex-1">
+                                <div class="flex-shrink-0 w-20 h-20 bg-slate-900 rounded-lg overflow-hidden flex items-center justify-center p-1 relative">
+                                    ${imageHTML}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-lg font-semibold mb-1 text-primary-light">${exercise.name}</h4>
+                                    <p class="text-sm text-slate-400">Cél: ${exercise.target}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex-shrink-0">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" class="hidden" ${isCompleted ? 'checked' : ''}
+                                           onchange="toggleExerciseCompleted(${exIdx}, this.checked)">
+                                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                                        isCompleted ? 'bg-primary text-slate-900' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                                    }">
+                                        <span class="text-lg">${isCompleted ? '✓' : '○'}</span>
+                                        <span class="font-medium">${isCompleted ? 'Teljesítve' : 'Teljesítés'}</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">RPE (1-5):</label>
+                                <select class="input-field" onchange="updateExerciseRPE(${exIdx}, this.value)">
+                                    <option value="">-- Válassz --</option>
+                                    <option value="1" ${exercise.rpe == 1 ? 'selected' : ''}>1 - Nagyon könnyű</option>
+                                    <option value="2" ${exercise.rpe == 2 ? 'selected' : ''}>2 - Könnyű</option>
+                                    <option value="3" ${exercise.rpe == 3 ? 'selected' : ''}>3 - Közepes</option>
+                                    <option value="4" ${exercise.rpe == 4 ? 'selected' : ''}>4 - Nehéz</option>
+                                    <option value="5" ${exercise.rpe == 5 ? 'selected' : ''}>5 - Maximális erőfeszítés</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-sm text-slate-400 mb-2 block">Edzés Komment:</label>
+                                <input type="text" class="input-field" value="${exercise.comment || ''}"
+                                       onchange="updateExerciseComment(${exIdx}, this.value)" placeholder="Megjegyzések...">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <div class="card mt-6">
+                    <h3 class="text-xl font-bold text-primary mb-4">🏃 Extra Kardió</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-sm text-slate-400 mb-2 block">Távolság (km):</label>
+                            <input type="number" step="0.1" class="input-field" id="cardio-distance"
+                                   value="${workoutLog.extra_cardio.distance_km || ''}" placeholder="0.0">
+                        </div>
+                        <div>
+                            <label class="text-sm text-slate-400 mb-2 block">Időtartam (perc):</label>
+                            <input type="number" class="input-field" id="cardio-duration"
+                                   value="${workoutLog.extra_cardio.duration_minutes || ''}" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="text-sm text-slate-400 mb-2 block">Tempó:</label>
+                            <div class="text-2xl font-bold text-primary" id="cardio-pace">--</div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="text-sm text-slate-400 mb-2 block">Megjegyzések:</label>
+                        <input type="text" class="input-field" id="cardio-notes"
+                               value="${workoutLog.extra_cardio.notes || ''}" placeholder="Pl: jó érzés, fáradtság, stb.">
+                    </div>
+                    <button class="btn btn-primary w-full mt-4" onclick="saveWorkout()">
+                        💾 Edzés Mentése
+                    </button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+            const distanceInput = document.getElementById('cardio-distance');
+            const durationInput = document.getElementById('cardio-duration');
+            
+            const updatePace = () => {
+                const distance = parseFloat(distanceInput.value);
+                const duration = parseInt(durationInput.value);
+                const paceDisplay = document.getElementById('cardio-pace');
+                
+                if (distance > 0 && duration > 0) {
+                    const pace = duration / distance;
+                    paceDisplay.textContent = `${Math.floor(pace)}:${String(Math.round((pace % 1) * 60)).padStart(2, '0')} min/km`;
+                } else {
+                    paceDisplay.textContent = '--';
+                }
+            };
+
+            distanceInput.addEventListener('input', updatePace);
+            durationInput.addEventListener('input', updatePace);
+            // A kardió adatok gépelés közben mentődnek, így egy gyakorlat kipipálása (újrarajzolás) nem törli őket.
+            [distanceInput, durationInput, document.getElementById('cardio-notes')]
+                .forEach(input => input.addEventListener('input', updateCardio));
+            updatePace();
+        }
+
+        function updateCardio() {
+            const distanceValue = document.getElementById('cardio-distance').value;
+            const durationValue = document.getElementById('cardio-duration').value;
+            const notesValue = document.getElementById('cardio-notes').value;
+            const workoutLog = getEditableWorkoutLog();
+            workoutLog.extra_cardio = {
+                distance_km: distanceValue ? parseFloat(distanceValue) : null,
+                duration_minutes: durationValue ? parseInt(durationValue) : null,
+                notes: notesValue || ""
+            };
+            saveData();
+        }
+
+        function toggleExerciseCompleted(exIdx, isChecked) {
+            const workoutLog = getEditableWorkoutLog();
+            workoutLog.exercises[exIdx].completed = isChecked;
+            saveData();
+            renderWorkout();
+            renderDashboard();
+            renderWeeklyRibbon();
+        }
+
+        function updateExerciseRPE(exIdx, value) {
+            const workoutLog = getEditableWorkoutLog();
+            workoutLog.exercises[exIdx].rpe = value ? parseInt(value) : null;
+            saveData();
+        }
+
+        function updateExerciseComment(exIdx, value) {
+            const workoutLog = getEditableWorkoutLog();
+            workoutLog.exercises[exIdx].comment = value;
+            saveData();
+        }
+
+        function saveWorkout() {
+            updateCardio();
+            const workoutLog = getEditableWorkoutLog();
+            const completedCount = workoutLog.exercises.filter(ex => ex.completed).length;
+            const totalCount = workoutLog.exercises.length;
+
+            renderDashboard();
+            renderWeeklyRibbon();
+            showToast(`Edzés mentve!\nTeljesített gyakorlatok: ${completedCount}/${totalCount}`);
+        }
+
+        // ============================================================================
+        // WEEKLY RIBBON & CALENDAR & OTHERS (Mainly UI Logic)
+        // ============================================================================
+
+        function renderWeeklyRibbon() {
+            const container = document.getElementById('weekly-ribbon');
+            if (!container) return;
+
+            const weekStart = getWeekStartDate(appState.currentDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const dayLabels = ['H', 'K', 'Sz', 'Cs', 'P', 'Sz', 'V'];
+            let html = '';
+
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(weekStart);
+                date.setDate(date.getDate() + i);
+                const dateStr = formatDate(date);
+                const isActive = dateStr === formatDate(appState.currentDate);
+                const isToday = dateStr === formatDate(today);
+                const hasData = hasAnyDataForDate(dateStr);
+
+                html += `
+                    <div class="week-day-container">
+                        <span class="week-day-label">${dayLabels[i]}</span>
+                        <button class="week-day-btn ${isActive ? 'active' : ''} ${isToday ? 'today' : ''} ${hasData ? 'has-data' : ''}"
+                                onclick="selectDateFromRibbon('${dateStr}')">
+                            ${date.getDate()}
+                        </button>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function getWeekStartDate(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function hasAnyDataForDate(dateStr) {
+            const dailyLog = appState.data.daily_logs[dateStr];
+            const workoutLog = appState.data.workout_logs[dateStr];
+            return (dailyLog && (dailyLog.weight_kg || dailyLog.water_ml > 0 || dailyLog.body_fat_pct || dailyLog.neck_cm || dailyLog.waist_cm)) ||
+                   (workoutLog && workoutLog.exercises && workoutLog.exercises.some(ex => ex.completed));
+        }
+
+        function selectDateFromRibbon(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            appState.currentDate = new Date(year, month - 1, day);
+            const activeView = document.querySelector('.view-content:not(.hidden)');
+            if (activeView) {
+                const viewId = activeView.id.replace('view-', '');
+                if (viewId === 'dashboard') renderDashboard();
+                if (viewId === 'workout') renderWorkout();
+            }
+            renderWeeklyRibbon();
+        }
+
+        function renderCalendar() {
+            const year = appState.calendarDate.getFullYear();
+            const month = appState.calendarDate.getMonth();
+            
+            document.getElementById('calendar-month-year').textContent = 
+                `${year}. ${['Január', 'Február', 'Március', 'Április', 'Május', 'Június', 
+                'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December'][month]}`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = (firstDay.getDay() + 6) % 7;
+
+            const container = document.getElementById('calendar-days');
+            let html = '';
+
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                html += '<div></div>';
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDate(date);
+                const isToday = dateStr === formatDate(today);
+                const isSelected = dateStr === formatDate(appState.currentDate);
+                const hasData = hasAnyDataForDate(dateStr);
+
+                html += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasData ? 'has-data' : ''}"
+                         onclick="selectDate('${dateStr}')">
+                        ${day}
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function selectDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            appState.currentDate = new Date(year, month - 1, day);
+            renderCalendar();
+            renderDashboard();
+            renderWorkout();
+            renderWeeklyRibbon();
+        }
+
+        function changeMonth(delta) {
+            appState.calendarDate.setMonth(appState.calendarDate.getMonth() + delta);
+            renderCalendar();
+        }
+
+        function goToToday() {
+            appState.currentDate = new Date();
+            appState.calendarDate = new Date();
+            renderCalendar();
+            renderDashboard();
+            renderWorkout();
+            renderWeeklyRibbon();
+        }
+
+        function renderSettings() {
+            document.getElementById('height-input').value = appState.data.user_info.height_cm;
+            document.getElementById('target-weight-input').value = appState.data.user_info.target_weight_kg;
+            document.getElementById('age-input').value = appState.data.user_info.age || (currentProfile === 'female' ? 23 : 30);
+            document.getElementById('db-indicator').textContent = `Jelenlegi Adatbázis: ${currentProfile === 'female' ? 'Női (fitness_tracker_db_female)' : 'Férfi (fitness_tracker_db)'}`;
+            const lastExport = getLastExportDate();
+            document.getElementById('last-export-info').textContent = lastExport
+                ? `Utolsó export: ${formatDateHungarian(lastExport)}`
+                : 'Ebből a profilból még nem volt export.';
+        }
+
+        // ============================================================================
+        // MENTÉS-EMLÉKEZTETŐ
+        // ============================================================================
+
+        const BACKUP_REMINDER_DAYS = 7;
+
+        function getLastExportKey() {
+            return `${STORAGE_KEYS[currentProfile]}_last_export`;
+        }
+
+        function getLastExportDate() {
+            const stored = localStorage.getItem(getLastExportKey());
+            return stored ? new Date(stored) : null;
+        }
+
+        function renderBackupReminder() {
+            const el = document.getElementById('backup-reminder');
+            const hasData = Object.keys(appState.data.daily_logs).length > 0 ||
+                            Object.keys(appState.data.workout_logs).length > 0;
+            const lastExport = getLastExportDate();
+            const daysSince = lastExport ? Math.floor((Date.now() - lastExport.getTime()) / 86400000) : null;
+
+            if (!hasData || (daysSince !== null && daysSince < BACKUP_REMINDER_DAYS)) {
+                el.classList.add('hidden');
+                return;
+            }
+            document.getElementById('backup-reminder-text').textContent = daysSince === null
+                ? 'Erről a profilról még nem készült exportált mentés.'
+                : `${daysSince} napja nem készült mentés.`;
+            el.classList.remove('hidden');
+        }
+
+        function saveUserProfile() {
+            const height = parseInt(document.getElementById('height-input').value);
+            const targetWeight = parseFloat(document.getElementById('target-weight-input').value);
+            const age = parseInt(document.getElementById('age-input').value);
+
+            if (!height || height < 100 || height > 250) { showToast('Érvénytelen magasság!', 'error'); return; }
+            if (!targetWeight || targetWeight < 40 || targetWeight > 200) { showToast('Érvénytelen célsúly!', 'error'); return; }
+            if (!age || age < 10 || age > 100) { showToast('Érvénytelen életkor!', 'error'); return; }
+
+            appState.data.user_info.height_cm = height;
+            appState.data.user_info.target_weight_kg = targetWeight;
+            appState.data.user_info.age = age;
+
+            saveData();
+            renderDashboard();
+            showToast('Profil sikeresen mentve!');
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(appState.data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const weekId = getISOWeekString(appState.currentDate);
+            const filename = `${currentProfile}_results_${weekId.replace('-', '_').toLowerCase()}.json`;
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            localStorage.setItem(getLastExportKey(), new Date().toISOString());
+            renderBackupReminder();
+            renderSettings();
+            showToast(`Adatbázis sikeresen exportálva!\n${filename}`);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.user_info) appState.data.user_info = { ...appState.data.user_info, ...importedData.user_info };
+                    if (importedData.daily_logs) appState.data.daily_logs = { ...appState.data.daily_logs, ...importedData.daily_logs };
+                    if (importedData.workout_logs) appState.data.workout_logs = { ...appState.data.workout_logs, ...importedData.workout_logs };
+                    if (importedData.weekly_programs) appState.data.weekly_programs = { ...appState.data.weekly_programs, ...importedData.weekly_programs };
+                    pruneEmptyLogs(appState.data);
+
+                    saveData();
+                    renderDashboard(); renderCalendar(); renderWorkout(); renderSettings(); renderWeeklyRibbon(); renderExerciseLibrary();
+                    showToast('Adatbázis sikeresen importálva és összefésülve ebbe a profilba!');
+                } catch (error) {
+                    showToast('Hiba történt az importálás során:\n' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function importWeeklyProgram(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const weeklyData = JSON.parse(e.target.result);
+                    if (!weeklyData.week_id || !weeklyData.program) throw new Error('Hibás fájlformátum.');
+                    if (!/^\d{4}-W\d{2}$/.test(weeklyData.week_id)) throw new Error('Hibás week_id formátum.');
+                    if (!appState.data.weekly_programs) appState.data.weekly_programs = {};
+                    
+                    appState.data.weekly_programs[weeklyData.week_id] = {
+                        week_id: weeklyData.week_id,
+                        program: weeklyData.program,
+                        imported_at: new Date().toISOString()
+                    };
+                    saveData();
+                    showToast(`Heti edzésterv betöltve a(z) ${currentProfile === 'female' ? 'NŐI' : 'FÉRFI'} profilba!\nHét: ${weeklyData.week_id}`);
+                    renderSettings(); renderDashboard(); renderWorkout(); renderExerciseLibrary();
+                } catch (error) {
+                    showToast('Hiba:\n' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function clearAllData() {
+            if (!confirm(`FIGYELEM: Ez törli a JELENLEGI (${currentProfile === 'female' ? 'Női' : 'Férfi'}) profilod minden adatát!\n\nFolytatod?`)) return;
+            appState.data = getInitialState();
+            saveData();
+            renderDashboard(); renderCalendar(); renderWorkout(); renderSettings(); renderWeeklyRibbon(); renderExerciseLibrary();
+            showToast('Aktív profil adatai törölve!');
+        }
+
+        // Beépített gyakorlatleírások. A heti JSON-ban egy gyakorlathoz "description" mező is megadható, az felülírja ezt.
+        const BUILTIN_EXERCISES = [
+            { name: 'Standard Push-up', desc: 'Hagyományos fekvőtámasz. Tartsd a tested egyenes vonalban, a könyökök kb. 45 fokos szöget zárjanak be a törzseddel.' },
+            { name: 'Incline Push-up', desc: 'Könnyített fekvőtámasz emelt felületen (kanapé széle vagy asztal). Kiváló vállkímélő verzió.' },
+            { name: 'Standard Plank', desc: 'Alkartámaszos tartás. A könyököd pontosan a vállad alatt legyen. Feszítsd meg a hasad és a feneked.' },
+            { name: 'Prone Cobra', desc: 'Hasra fekve hátizom-erősítés. Emeld meg a mellkasod, karjaidat hátrafelé-felfelé húzod, lapockáidat összezárod.' },
+            { name: 'Standard Sit-up', desc: 'Hagyományos felülés. Behajlított térdekkel emeld fel a törzsed a hasizmaid erejével.' },
+            { name: 'Air Squat', desc: 'Sima testtömeges guggolás. Engedd le a csípőd a térdvonal alá, hátad egyenesen.' },
+            { name: 'Walking Lunge', desc: 'Sétáló kitörés. Lépj nagyot előre, engedd le a csípőd, a hátsó térded majdnem érinti a talajt.' },
+            { name: 'Standing Calf Raise', desc: 'Vádli emelés állva. Emelkedj lábujjhegyre, feszítsd rá a vádlid a tetőponton.' },
+            { name: 'Plank Hip Dips', desc: 'Plank csípőbillentéssel. Alkartámaszból finoman forgasd el a csípődet oldalra.' },
+            { name: 'Dolphin Plank', desc: 'Alkartámaszból told fel a feneked magasba (fordított V alak), majd vissza plank pozícióba.' },
+            { name: 'Lying Leg Raise', desc: 'Lábemelés hanyattfekvésben. Nyújtott lábbal emeld fel a lábaidat függőlegesig.' },
+            { name: 'Superman Hold', desc: 'Hason fekve emeld meg a karjaidat és lábaidat egyszerre. Tartsd 2 másodpercig.' },
+            { name: 'High Knees', desc: 'Helyben futás magas térdemeléssel. Intenzív kardió gyakorlat, térdek csípőmagasságig.' },
+            { name: 'Russian Twist', desc: 'Orosz csavarás. Ülj le, dőlj hátra, forgasd el a vállövedet és érintsd meg a talajt jobbra-balra.' },
+            { name: 'Squat to Cross-Body Knee Drive', desc: 'Guggolásból felállva húzd fel az egyik térded keresztbe, érintsd meg az ellentétes könyököddel.' },
+            { name: 'Reverse Lunge', desc: 'Kitörés hátra. Lépj egy nagyot hátrafelé, engedd le a csípőd, amíg a hátsó térded majdnem a talajt érinti, majd told vissza magad állásba.' },
+            { name: 'Állványos mély fekvőtámasz', desc: 'Fekvőtámasz állványon végezve. Semleges csuklópozíciót biztosít, a mélyebb mozgástartomány miatt maximálisan nyújtja a mellizmot.' },
+            { name: 'Állványos Dolphin Plank or Push-up', desc: 'Dolphin plank vagy fekvőtámasz a csuklókímélő állványon végezve a biztonságosabb ízületi terhelésért.' },
+            { name: 'Gumiszalagos evezés ülve', desc: 'Nyújtott lábbal ülsz, a szalag a talpadba akasztva. Húzd a szalagot a hasadhoz, miközben a lapockáidat erősen összezárod. Hátizom és bicepsz fókusz.' },
+            { name: 'Gumiszalagos bicepsz hajlítás', desc: 'Állva, a szalagra rálépve végezd. A könyöködet szorosan a bordáidhoz zárod (váll fixálva), és csak alkarból húzod fel a szalagot a bicepsz csúcsfeszüléséig.' },
+            { name: 'Gumiszalagos húzás mellhez (Pull-Apart)', desc: 'Állva, vállmagasságban előre tartott nyújtott karokkal fogd a szalagot, majd húzd szét, amíg a mellkasodhoz nem ér. Kiváló vállvédő és tartásjavító gyakorlat.' }
+        ];
+
+        function renderExerciseLibrary() {
+            const library = new Map(BUILTIN_EXERCISES.map(ex => [ex.name, { name: ex.name, desc: ex.desc, weeks: [] }]));
+
+            Object.keys(appState.data.weekly_programs).sort().forEach(weekId => {
+                const days = appState.data.weekly_programs[weekId].program || {};
+                Object.values(days).forEach(day => {
+                    (day.exercises || []).forEach(ex => {
+                        if (!library.has(ex.name)) library.set(ex.name, { name: ex.name, desc: null, weeks: [] });
+                        const entry = library.get(ex.name);
+                        if (ex.description) entry.desc = ex.description;
+                        if (!entry.weeks.includes(weekId)) entry.weeks.push(weekId);
+                    });
+                });
+            });
+
+            // Elöl a legutóbb használt gyakorlatok, utána ábécérendben a többi.
+            const exercises = [...library.values()].sort((a, b) => {
+                const lastA = a.weeks[a.weeks.length - 1] || '';
+                const lastB = b.weeks[b.weeks.length - 1] || '';
+                return lastB.localeCompare(lastA) || a.name.localeCompare(b.name, 'hu');
+            });
+
+            const usedCount = exercises.filter(ex => ex.weeks.length).length;
+            document.getElementById('exercise-library-subtitle').textContent =
+                `${exercises.length} gyakorlat · ${usedCount} szerepel a betöltött heti tervekben`;
+
+            const container = document.getElementById('exercise-library-grid');
+            let html = '';
+
+            exercises.forEach(ex => {
+                const imageHTML = getExerciseImageHTML(ex.name, '200');
+                const weeksText = ex.weeks.length
+                    ? `Hetek: ${ex.weeks.slice(-4).map(w => w.split('-')[1]).join(', ')}${ex.weeks.length > 4 ? ` (+${ex.weeks.length - 4})` : ''}`
+                    : 'Nem szerepel a betöltött tervekben';
+                html += `
+                    <div class="card">
+                        <h3 class="text-xl font-bold mb-1 text-primary">${ex.name}</h3>
+                        <div class="text-xs text-slate-500 mb-3">${weeksText}</div>
+                        <div class="bg-slate-900 rounded-lg mb-4 aspect-video flex items-center justify-center p-4 relative border border-slate-700">
+                            ${imageHTML}
+                        </div>
+                        <p class="text-sm leading-relaxed ${ex.desc ? 'text-slate-300' : 'text-slate-500 italic'}">${ex.desc || 'Nincs még leírás. A heti JSON-ban a gyakorlathoz adott "description" mezővel pótolható.'}</p>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function navigateToView(viewName) {
+            document.querySelectorAll('.view-content').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.view === viewName) btn.classList.add('active');
+            });
+            if (viewName === 'dashboard') renderDashboard();
+            if (viewName === 'workout') renderWorkout();
+            if (viewName === 'calendar') renderCalendar();
+            if (viewName === 'settings') renderSettings();
+            if (viewName === 'exercises') renderExerciseLibrary();
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => { navigateToView(btn.dataset.view); });
+        });
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+
+        loadData();
+        renderDashboard();
+        renderCalendar();
+        renderWorkout();
+        renderSettings();
+        renderExerciseLibrary();
+        renderWeeklyRibbon();
+    </script>
+</body>
+</html>

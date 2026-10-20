@@ -82,6 +82,18 @@ fájdalom esetén automatikus kímélés, heti tervjavaslat szabálymotorral és
 Egy eszközön több fiók is lehet (Beállítások → *Másik fiók hozzáadása*), a fiókok között egy koppintással lehet váltani.
 A régi app exportját és új heti terveket a Beállításokból is fel lehet tölteni, nem kell hozzá `docker exec`.
 
+### iPhone – tudnivalók
+
+- **HTTPS kell.** Az offline mód és a fájdalom-rögzítés csak biztonságos kapcsolaton működik, ezért a Tailscale-es
+  `https://….ts.net` címet használd, ne a gép `http://192.168…` IP-címét.
+- **Safariban add hozzá a főképernyőhöz,** és onnan indítsd: így teljes képernyős, saját ikonnal fut, és az iOS nem törli
+  az adatait (a sima Safari-lapok tárhelyét 7 nap használatlanság után törölheti).
+- Az első megnyitáskor töltsd be egyszer online, utána offline is indul. Az adat amúgy is a szerverre szinkronizálódik.
+- **A párodnak:** hozz létre neki saját fiókot (`create-user --gender female`), a Tailscale admin felületén oszd meg vele a
+  szervert (*Share* a gépnél, vagy hívd meg a tailnetbe), majd ő is a fenti lépésekkel telepíti a saját telefonjára.
+- Natív iOS-app is van (`mobile/` az `ios-app` ágon), de az önálló telepítéséhez fizetős Apple Developer fiók kellene;
+  a mindennapi használatra a PWA a javasolt út.
+
 ## Helyi kipróbálás (Windows, Docker nélkül)
 
 Python 3.12+ és Node.js kell. A repó gyökeréből, PowerShellben:

@@ -79,3 +79,5 @@ body.theme-female {
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+/* iPhone főképernyős módban (áttetsző állapotsor) a fejléc ne csússzon az óra / akku alá */
+.safe-top { padding-top: env(safe-area-inset-top); }

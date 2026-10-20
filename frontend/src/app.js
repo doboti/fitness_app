@@ -171,7 +171,7 @@ function shell(ctx, body) {
                 <div class="mt-auto px-3 text-xs text-slate-500">${ctx.user.name}</div>
             </aside>
             <div class="flex-1 min-w-0">
-                <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800">
+                <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 safe-top">
                     <div class="max-w-3xl mx-auto flex items-center gap-2 px-4 h-14">
                         ${DATED_VIEWS.has(view) ? html`
                             <button class="btn-ghost btn-sm" data-action="date-shift" data-days="-1" aria-label="Előző nap">‹</button>

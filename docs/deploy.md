@@ -34,13 +34,19 @@ GEMINI_API_KEY=...
 GEMINI_MODEL=gemini-3.8-flash
 ```
 
-**Meglévő adatok átvitele (javasolt):** a helyi gépen lévő adatbázist másold át az első telepítés előtt. Benne van Boti és
-Johi profilja, és minden eddigi napló:
+**Meglévő adatok átvitele (javasolt):** a helyi adatbázisból készíts egy mentést, és azt vidd át az első telepítés előtt.
+Benne van Boti és Johi profilja, és minden eddigi napló. A `local.db`-t **ne** másold közvetlenül: a legutóbbi
+változások a mellette lévő `local.db-wal` fájlban vannak, a mentés viszont mindent egyetlen fájlba tesz.
+```powershell
+# a Windows gépen, a repó gyökeréből (a helyi szerver futhat közben):
+.\scripts\run-local.ps1 -Cli backup backend\data\export-a-szerverre --keep 1
+scp backend\data\export-a-szerverre\workout-*.db.gz <te>@<optiplex>:/tmp/
+```
 ```bash
-# a Windows gépről (PowerShell), a repó gyökeréből:
-scp backend\data\local.db <te>@<optiplex>:/tmp/workout.db
-# az Optiplexen:
-sudo mv /tmp/workout.db /srv/workout/data/workout.db && sudo chown 1000:1000 /srv/workout/data/workout.db
+# az Optiplexen (ha a konténer már fut: előtte docker stop workout-api, utána docker start workout-api):
+sudo rm -f /srv/workout/data/workout.db-wal /srv/workout/data/workout.db-shm
+gunzip -c /tmp/workout-*.db.gz | sudo tee /srv/workout/data/workout.db > /dev/null
+sudo chown 1000:1000 /srv/workout/data/workout.db && rm /tmp/workout-*.db.gz
 ```
 Ha üresen indulsz: az első telepítés után `docker exec -it workout-api python -m app.cli create-user --name Boti --gender male`
 (és ugyanígy Johi), a régi exportok pedig az appból tölthetők be (Beállítások → Régi app exportjának betöltése).

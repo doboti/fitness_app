@@ -1,11 +1,13 @@
+import { removeAccount } from './accounts.js';
 import { createApi } from './api.js';
-import { getMeta, openDb } from './db.js';
+import { getMeta, openDb, setMeta } from './db.js';
 import { addDays, formatHu, todayStr } from './domain/dates.js';
 import { pendingCount, refreshCatalog, runSync } from './sync.js';
 import { closeModal, html, isModalOpen, toast } from './ui.js';
 import * as calendar from './views/calendar.js';
 import * as dashboard from './views/dashboard.js';
 import * as library from './views/library.js';
+import { openProfile } from './views/login.js';
 import * as pain from './views/pain.js';
 import * as plan from './views/plan.js';
 import * as settings from './views/settings.js';
@@ -75,10 +77,33 @@ export async function startApp(account) {
         syncTimer = setTimeout(() => ctx.syncNow(), SYNC_DEBOUNCE_MS);
         pendingCount(db).then((n) => { ctx.state.pending = n; updateSyncIndicator(ctx); });
     };
-    ctx.syncNow = async ({ manual = false } = {}) => {
+    /**
+     * A szerver nem ismeri az eszköz kulcsát (pl. a szerver adatbázisát lecserélték / visszaállították).
+     * Ha ugyanez a profil (azonosító és név) megvan, új kulcsot kérünk hozzá és mindent újraszinkronizálunk;
+     * különben a profilválasztóra lépünk (a helyi adat egy másik szerver-profilhoz tartozott).
+     */
+    ctx.reauthenticate = async () => {
+        const profiles = await createApi(null).get('/api/profiles');
+        const knownNames = [ctx.account.name, ctx.user?.name].filter(Boolean);
+        const same = profiles.find((p) => p.id === ctx.account.uid && knownNames.includes(p.name));
+        if (same) {
+            ctx.account = await openProfile(same);
+            ctx.api = createApi(ctx.account.token);
+            await setMeta(db, 'cursor', 0);
+            toast('A szerver adatbázisa megváltozott – új kulccsal beléptettelek, és mindent újraszinkronizálok.', 'warn');
+            return true;
+        }
+        removeAccount(ctx.account.uid);
+        await db.delete();
+        location.reload();
+        return false;
+    };
+
+    ctx.syncNow = async ({ manual = false, retried = false } = {}) => {
         if (ctx.state.syncing) return;
         ctx.state.syncing = true;
         updateSyncIndicator(ctx);
+        let retry = false;
         try {
             const catalogAt = await getMeta(db, 'catalogAt');
             if (!catalogAt || Date.now() - Date.parse(catalogAt) > CATALOG_MAX_AGE_MS || !ctx.catalog.size) {
@@ -98,13 +123,20 @@ export async function startApp(account) {
         } catch (error) {
             ctx.state.syncError = error.message;
             ctx.state.syncErrorStatus = error.status;
-            if (error.status === 401) toast('A token érvénytelen – lépj be újra a Beállításokban.', 'error');
-            else if (manual) toast(`Szinkron sikertelen: ${error.message}`, 'error');
+            if (error.status === 401 && !retried) {
+                retry = await ctx.reauthenticate().catch((e) => {
+                    toast(`Újrabelépés sikertelen: ${e.message}`, 'error');
+                    return false;
+                });
+            } else if (manual) {
+                toast(`Szinkron sikertelen: ${error.message}`, 'error');
+            }
         } finally {
             ctx.state.syncing = false;
             ctx.state.pending = await pendingCount(db);
             updateSyncIndicator(ctx);
         }
+        if (retry) await ctx.syncNow({ manual, retried: true });
     };
 
     document.body.classList.toggle('theme-female', ctx.user.gender === 'female');

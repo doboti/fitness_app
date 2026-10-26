@@ -1,3 +1,4 @@
+import { createApi } from '../api.js';
 import { listAccounts, switchAccount } from '../accounts.js';
 import { openProfile, profileLabel } from './login.js';
 import { setMeta } from '../db.js';
@@ -107,12 +108,12 @@ export const actions = {
     'profile-switch': async (ctx, el) => {
         const uid = Number(el.value);
         if (!uid || uid === ctx.account.uid) return;
-        // ha ezen az eszközön már volt ez a profil, a meglévő kulcsát és helyi adatait használjuk
-        if (listAccounts().some((a) => a.uid === uid)) {
-            switchAccount(uid);
-        } else {
-            await openProfile({ id: uid });
-        }
+        // ha ezen az eszközön már volt ez a profil és a kulcsa még érvényes, azt és a helyi adatait használjuk;
+        // érvénytelen kulcsnál (pl. lecserélt szerver-adatbázis) új kulcsot kérünk ugyanahhoz a profilhoz
+        const existing = listAccounts().find((a) => a.uid === uid);
+        const valid = existing && await createApi(existing.token).get('/api/me').then(() => true, (e) => e.status !== 401);
+        if (valid) switchAccount(uid);
+        else await openProfile({ id: uid });
         location.reload();
     },
 };

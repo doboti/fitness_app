@@ -73,6 +73,21 @@ describe('szinkron', () => {
         expect((await db.sessions.get('s2')).title).toBe('szerver-új');
     });
 
+    it('visszaállított szerver (kisebb kurzor) → teljes újraszinkron', async () => {
+        const { setMeta } = await import('../src/db.js');
+        await setMeta(db, 'cursor', 500);
+        const api = stubApi((body) => (body.cursor === 500
+            ? { cursor: 40, applied: 0, stale: [], rejected: {}, changes: emptyChanges() }
+            : { cursor: 41, applied: 0, stale: [], rejected: {}, changes: { ...emptyChanges(),
+                daily_logs: [{ date: '2026-10-01', weight_kg: 76, updated_at: '2026-10-01T08:00:00Z' }] } }));
+        const result = await runSync(db, api);
+        expect(api.calls.map((c) => c.body.cursor)).toEqual([500, 0]);
+        expect(result.resynced).toBe(true);
+        expect(result.pulled).toBe(1);
+        expect(await getMeta(db, 'cursor')).toBe(41);
+        expect((await db.daily_logs.get('2026-10-01')).weight_kg).toBe(76);
+    });
+
     it('elutasított dokumentum hibával, programok és profil mentése', async () => {
         await saveLocal(db, 'pain_reports', { id: 'p1', date: '2026-10-15', intensity: 4, kind: 'dull' });
         const api = stubApi(() => ({

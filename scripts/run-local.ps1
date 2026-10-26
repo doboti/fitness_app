@@ -24,8 +24,11 @@ if (-not (Test-Path $python)) {
 }
 
 if ($Cli) {
-    # A relatív fájlútvonalak a repó gyökeréhez képest értendők.
-    $resolved = $CliArgs | ForEach-Object { if (Test-Path (Join-Path $root $_)) { Join-Path $root $_ } else { $_ } }
+    # A relatív fájlútvonalak a repó gyökeréhez képest értendők (a még nem létezők is, pl. egy mentés célmappája).
+    $resolved = $CliArgs | ForEach-Object {
+        $isPath = ($_ -match '[\\/]') -and -not $_.StartsWith('-') -and -not [System.IO.Path]::IsPathRooted($_)
+        if ($isPath -or (Test-Path (Join-Path $root $_))) { Join-Path $root $_ } else { $_ }
+    }
     Push-Location (Join-Path $root 'backend')
     try { & $python -m app.cli $Cli @resolved } finally { Pop-Location }
     exit $LASTEXITCODE

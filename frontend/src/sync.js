@@ -64,12 +64,22 @@ export async function runSync(db, api) {
         await setMeta(db, 'lastSync', new Date().toISOString());
     });
 
-    return {
+    const result = {
         pushed: TABLES.reduce((n, t) => n + pushed[t.name].length, 0),
         pulled,
         rejected: response.rejected,
         stale: response.stale,
     };
+
+    // A szerver sorszáma visszalépett (pl. az adatbázisát egy mentésből állították vissza): a régi kurzorral
+    // változások maradnának ki, ezért az elejétől újraszinkronizálunk (a második kör kurzora 0, nem ismétlődik).
+    if (response.cursor < cursor) {
+        await setMeta(db, 'cursor', 0);
+        const again = await runSync(db, api);
+        return { ...again, pushed: result.pushed + again.pushed, pulled: result.pulled + again.pulled,
+                 rejected: { ...result.rejected, ...again.rejected }, resynced: true };
+    }
+    return result;
 }
 
 /** A gyakorlat-katalógus frissítése (ritkán változik; offline a helyi másolatot használjuk). */

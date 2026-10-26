@@ -94,3 +94,27 @@ def test_pain_and_failure_drive_proposal(client, user):
     assert "Mellizom" in by_exercise["push_up"]["reason"]
     assert by_exercise["plank"]["kind"] == "regress" and by_exercise["plank"]["after"]["prescription"]["max"] == 50
     assert any("Mellizom" in i for i in proposal["insights"])
+
+
+def test_target_week_is_current_week_until_it_has_a_plan(client, user):
+    """Hétfő reggel (W43, még nincs rá terv) a javaslat erre a hétre szól, nem ugorja át (W42 → W43)."""
+    _, token = user
+    h = auth(token)
+    client.post("/api/programs", headers=h, json=PROGRAM)                      # csak W42 terv van
+    monday = client.post("/api/plan/proposals?today=2026-10-19", headers=h).json()
+    assert (monday["base_week_id"], monday["target_week_id"]) == ("2026-W42", "2026-W43")
+    assert not any("legutóbbi heti terv" in i for i in monday["insights"])   # nem maradt ki hét
+
+    # elfogadás után már van W43 terv → a következő javaslat a W44-re szól, a W43-ból indulva
+    client.post(f"/api/plan/proposals/{monday['id']}/accept", headers=h, json={"change_ids": []})
+    later = client.post("/api/plan/proposals?today=2026-10-22", headers=h).json()
+    assert (later["base_week_id"], later["target_week_id"]) == ("2026-W43", "2026-W44")
+
+
+def test_skipped_week_is_reported(client, user):
+    _, token = user
+    h = auth(token)
+    client.post("/api/programs", headers=h, json=PROGRAM)                      # W42
+    p = client.post("/api/plan/proposals?today=2026-10-27", headers=h).json()  # W44, W43 kimaradt
+    assert (p["base_week_id"], p["target_week_id"]) == ("2026-W42", "2026-W44")
+    assert p["insights"][0].startswith("A legutóbbi heti terv a 2026-W42")

@@ -80,9 +80,18 @@ def weekly_average(db: Session, user: User, today: Date, weeks: int = 3) -> dict
             for m in catalog_muscles}
 
 
-def base_program(db: Session, user: User, week_id: str) -> WeeklyProgram | None:
-    return db.scalar(select(WeeklyProgram).where(WeeklyProgram.user_id == user.id, WeeklyProgram.week_id <= week_id)
+def base_program(db: Session, user: User, before_week: str) -> WeeklyProgram | None:
+    """A céllhét előtti legutóbbi heti terv (ebből indul a javaslat)."""
+    return db.scalar(select(WeeklyProgram).where(WeeklyProgram.user_id == user.id, WeeklyProgram.week_id < before_week)
                      .order_by(WeeklyProgram.week_id.desc()).limit(1))
+
+
+def target_week_for(db: Session, user: User, today: Date) -> str:
+    """Az aktuális hét, ha arra még nincs terv (pl. hétfő reggel); különben a következő hét."""
+    current = iso_week_id(today)
+    has_current = db.scalar(select(WeeklyProgram.id).where(WeeklyProgram.user_id == user.id,
+                                                          WeeklyProgram.week_id == current)) is not None
+    return next_week_id(current) if has_current else current
 
 
 @dataclass
@@ -107,10 +116,10 @@ class PlanningContext:
 def build_context(db: Session, user: User, today: Date | None = None) -> PlanningContext:
     today = today or Date.today()
     current = iso_week_id(today.isoformat())
-    base = base_program(db, user, current)
+    target = target_week_for(db, user, today)
+    base = base_program(db, user, target)
     if base is None:
         raise PlanningError("Nincs heti terv, amiből javaslatot lehetne készíteni. Tölts fel egy heti tervet.")
-    target = next_week_id(current)
     target_monday = Date.fromisocalendar(*map(int, target.replace("-W", " ").split()), 1)
     catalog, muscle_names = load_catalog(db)
     histories, bands = load_histories(db, user, target_monday)
@@ -143,7 +152,7 @@ def store_proposal(db: Session, user: User, ctx: PlanningContext, source: str, p
 def generate_proposal(db: Session, user: User, today: Date | None = None) -> PlanProposal:
     ctx = build_context(db, user, today)
     result = ctx.engine().propose(ctx.base_days, ctx.histories, ctx.bands, ctx.weekly_avg)
-    if ctx.base.week_id != ctx.current_week:
+    if next_week_id(ctx.base.week_id) != ctx.target_week:
         result.insights.insert(0, f"A legutóbbi heti terv a {ctx.base.week_id} hétre szól, ebből indul a javaslat.")
     if not ctx.histories:
         result.insights.append("Az elmúlt 4 hétben nincs naplózott edzés, ezért nincs mi alapján nehezíteni vagy könnyíteni.")

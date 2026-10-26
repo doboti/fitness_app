@@ -1,5 +1,8 @@
-// Jövő heti tervjavaslat (a backend szabálymotorja készíti); változásonként jóváhagyható. Csak online működik.
+// Heti tervjavaslat (a backend szabálymotorja vagy a Gemini készíti) – az aktuális hétre, ha arra még nincs terv, különben a következőre; változásonként jóváhagyható. Csak online működik.
+import { isoWeekId, todayStr } from '../domain/dates.js';
 import { html, openModal, when } from '../ui.js';
+
+const weekLabel = (weekId) => (weekId === isoWeekId(todayStr()) ? 'ez a hét' : 'jövő hét');
 
 const GEMINI_TIMEOUT_MS = 180000;
 
@@ -44,7 +47,7 @@ export function planCard(ctx) {
         body = html`
             <p class="text-sm text-slate-400">
                 A motor az elmúlt 4 hét naplójából, a nehézség-visszajelzésekből és a fájdalmakból javasol változásokat
-                a jövő hétre. Semmi nem változik a jóváhagyásod nélkül.
+                a soron következő hétre (ha az aktuálisra még nincs terv, akkor erre a hétre). Semmi nem változik a jóváhagyásod nélkül.
             </p>
             ${when(plan.last, () => html`<p class="text-xs text-slate-500 mt-2">Legutóbbi: ${plan.last.target_week_id} – ${plan.last.status === 'accepted' ? 'elfogadva' : 'elvetve'}</p>`)}
             <button class="btn-primary w-full mt-3" data-action="plan-generate" ${plan.busy ? 'disabled' : ''}>
@@ -64,7 +67,7 @@ export function planCard(ctx) {
     }
     return html`
         <div class="card mb-4" id="plan-card">
-            <div class="card-title">📋 Jövő heti terv</div>
+            <div class="card-title">📋 Heti terv javaslat</div>
             ${body}
         </div>`;
 }
@@ -74,7 +77,7 @@ function proposalBody(plan) {
     const selected = p.changes.filter((c) => !plan.excluded.has(c.id)).length;
     return html`
         <div class="flex items-baseline justify-between gap-2">
-            <div class="font-semibold">${p.base_week_id} → ${p.target_week_id}
+            <div class="font-semibold">${p.base_week_id} → ${p.target_week_id} <span class="text-sm font-normal text-slate-400">(${weekLabel(p.target_week_id)})</span>
                 <span class="badge ${p.source === 'llm' ? 'bg-violet-500/15 text-violet-300' : 'bg-slate-700 text-slate-300'} ml-1">${p.source === 'llm' ? 'Gemini edző' : 'szabálymotor'}</span></div>
             <div class="text-xs text-slate-500">${p.changes.length} változás · ${p.unchanged} marad</div>
         </div>
